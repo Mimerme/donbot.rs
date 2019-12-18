@@ -26,9 +26,10 @@ pub struct Twitch_Clip {
 	thumbnail_url: String
 }
 
-pub fn download_clip(client : reqwest::blocking::Client, url : String, download_dir : String) -> Result<(), reqwest::Error> {
+// Blocking
+pub fn download_clip(client : reqwest::blocking::Client, url : &str, download_dir : &str, filename : &str) -> Result<(), reqwest::Error> {
 	// Make the network request and unwrap the response
-	let mut res = client.get(&url).send()?;
+	let mut res = client.get(url).send()?;
 
 	// Create a new File struct
 	let mut dest : File = {
@@ -42,13 +43,14 @@ pub fn download_clip(client : reqwest::blocking::Client, url : String, download_
 
 
 		println!("file to download: '{}'", fname);
-        let fname = format!("{}{}{}", download_dir, "/", fname);
+		let filename = filter_filename(filter_filename)
+        let fname = format!("{}{}{}", download_dir, "/", &filename);
         println!("will be located under: '{:?}'", fname);
         File::create(&fname).unwrap()
     };
 
     // Copy the contents from the response into the destination
-    // Weird design cuz of 0-cost abstraction?
+    // NOTE: Weird design cuz of 0-cost abstraction?
     copy(&mut res, &mut dest);
 
     Ok(())
@@ -90,4 +92,13 @@ pub fn get_helix_top_clips(client : reqwest::blocking::Client, game_id : String)
   	let json : Helix_Response = serde_json::from_str(&body).unwrap();
 
     return Ok(json.data);
+}
+
+/// This is a function that filters out invalid filename characters
+/// Filters using a Whitelist approach. Weird OSes have weird stuff going on
+/// Approach taken from: https://stackoverflow.com/a/295146
+/// Valid characters: -_.() abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+fn filter_filename(filename_in : &str) -> String{
+	
+
 }
