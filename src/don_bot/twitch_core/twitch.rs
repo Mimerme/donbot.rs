@@ -14,27 +14,30 @@ const CLIENT_ID : &str = "s0w8u8kr3e0s0mqgnzhyoom0bh7jzc";
 
 #[derive(Deserialize)]
 pub struct Twitch_Clip {
-	id: String,
-	url: String,
-	embed_url: String,
-	broadcaster_id: String,
-	creator_id: String,
-	creator_name: String,
-	video_id: String,
-	game_id: String,
-	language:String,
-	title: String,
-	view_count: u32,
-	created_at: String,
-	thumbnail_url: String,
+	pub id: String,
+	pub url: String,
+	pub embed_url: String,
+	pub broadcaster_id: String,
+	pub creator_id: String,
+	pub creator_name: String,
+	pub video_id: String,
+	pub game_id: String,
+	pub language:String,
+	pub title: String,
+	pub view_count: u32,
+	pub created_at: String,
+	pub thumbnail_url: String,
 	#[serde(skip_deserializing)]
-	mp4_url : String
+	pub mp4_url : String
 }
 
 // Blocking
 pub fn download_clip(client : &reqwest::blocking::Client, url : &str, download_dir : &str, filename : &str) -> Result<(), reqwest::Error> {
 	// Make the network request and unwrap the response
 	let mut res = client.get(url).send()?;
+
+    //create the 'downloads' directory if it doesn't exist
+    std::fs::create_dir_all(download_dir);
 
 	// Create a new File struct
 	let mut dest : File = {

@@ -1,4 +1,5 @@
 /// This module is used for using pre-written gstreamer pipelines
+/// Pipeline Command: gst-launch-1.0 filesrc location={file_path} ! decodebin
 pub mod gstreamer;
 
 

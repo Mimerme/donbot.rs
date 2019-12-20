@@ -18,7 +18,7 @@ fn test_download_clip(){
     // Clip of Zain explaining the Marth Falco matchup lul
     let res = download_clip(&reqwest::blocking::Client::new(), 
         "https://clips-media-assets2.twitch.tv/AT-cm|585662124.mp4", 
-        "C:/Users/Andros Yang/projects/donbot.rs/downloads/", "test.mp4");
+        "./downloads/", "test.mp4");
     
     match res {
         Result::Ok(_) => assert!(true),
