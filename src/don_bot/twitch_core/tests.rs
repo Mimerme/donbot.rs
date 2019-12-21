@@ -8,7 +8,6 @@ fn test_get_helix_clips(){
         Result::Ok(res) => assert!(true),
         Result::Err(_) =>  assert!(false)
     }
-
 }
 
 #[test]
