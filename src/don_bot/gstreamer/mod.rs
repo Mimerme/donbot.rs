@@ -10,7 +10,7 @@
 // Why the fuck is this framework made 10x more complicated than it has be be : 12/20/2019
 
 /// Example:
-pub mod gstreamer;
+pub mod gst;
 
 
 /// FUNCTIONS
@@ -20,7 +20,7 @@ pub mod gstreamer;
 /// * 'mp4_pathes' - a vector of mp4 file paths on the binary's local machine
 /// * 'output_path' - output file of the final video
 /// * 'overlay_path' - path to
-pub use gstreamer::stitch_videos;
+pub use gst::stitch_videos;
 
 /// Apply an overlay to a video file and outputs the result
 /// * 'overlay_path' - a path to a _____ file
