@@ -66,17 +66,39 @@ pub fn create_filesrcs(pipeline : &gstreamer::Pipeline, paths : Vec<String>) -> 
         filesrc.set_property("location", &path)
             .map_err(|_| "setting location property failed")?;
         pipeline.add(&filesrc);
-        let decodebin = gstreamer::ElementFactory::make("decodebin", None).unwrap();
-        pipeline.add(&decodebin);
 
-        filesrc.link(&decodebin);
+
+        decodebin.connect
+
         ret.push(decodebin);
-        //ret.push(filesrc);
     }
 
     return Ok(ret);
 }
 
+pub fn decode_files(pipeline : &gstreamer::Pipeline, files : Vec<gstreamer::GstObjectExt>, new_pad_closure : Fn(gstreamer::Pipeline, gstreamer::Pad)) {
+    let pipeline_weak  = pipeline.downgrade();
+
+    for file in files {
+        //TODO: proper error handling
+        let decodebin = gstreamer::ElementFactory::make("decodebin", None).unwrap();
+        pipeline.add(&decodebin);
+
+        file.link(&decodebin);
+
+        decodebin.connect_pad_added(move |_, src_pad| {
+            let pipeline = match pipeline_weak.upgrade() {
+                Some(pipeline) => pipeline,
+                None => return
+            };
+
+            //Remember to synchronize your state to the parent within the closure!!!
+            return new_pad_closure(pipeline, src_pad);
+        });
+    }
+
+
+}
 
 pub fn stitch_videos(pipeline : &gstreamer::Pipeline, filesrcs : Vec<gstreamer::Element>) ->  Result<gstreamer::Element, String> {
     let concat = gstreamer::ElementFactory::make("concat", None).map_err(|_| "missing concat element")?;

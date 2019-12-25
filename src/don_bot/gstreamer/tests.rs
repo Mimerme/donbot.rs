@@ -13,7 +13,14 @@ fn test_concat_clips(){
     //let mut filesrcs = create_filesrcs(&pipeline, vec!["/home/mimerme/projects/donbot.rs/downloads/AT-cm585662124.mp4".to_string()]).unwrap();
     println!("Filesrcs created");
 
-    let concat = stitch_videos(&pipeline, filesrcs).unwrap();
+    //Add a callback when new pads are added
+    decode_files(&pipeline, filesrcs, || {
+        let concat = 
+
+
+    });
+
+    let concat = stitch_videos(&pipeline, ).unwrap();
     println!("Concat created");
 
     output_video(&pipeline, "/home/mimerme/projects/donbot.rs/downloads/test.mp4".to_string(), concat);

@@ -54,5 +54,7 @@ pub use gst::output_video;
 /// * 'output_path' - 
 // pub use gstreamer::apply_overlay;
 
+pub use gst::
+
 #[cfg(test)]
 mod tests;
