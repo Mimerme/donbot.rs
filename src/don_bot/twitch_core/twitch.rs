@@ -50,11 +50,11 @@ pub fn download_clip(client : &reqwest::blocking::Client, url : &str, download_d
 		        .unwrap_or("tmp.mp4");	
 
 
-		println!("file to download: '{}'", fname);
+		//println!("file to download: '{}'", fname);
 		let mut filename = fname.to_string();
 		filter_filename(&mut filename);
         let fname = format!("{}{}{}", download_dir, "/", &filename);
-        println!("will be located under: '{:?}'", fname);
+        //println!("will be located under: '{:?}'", fname);
         File::create(&fname).unwrap()
     };
 
@@ -81,7 +81,7 @@ pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String
 
     //NOTE: .body() consumes the owernship of the response
     let body = res.text().unwrap();
-  	println!("Body: \n\n{}", body);
+  	//println!("Body: \n\n{}", body);
 
   	/* Structs for Helix specific JSON desrialization. */ 
   	/* Prefer fixed size stuff cuz Rust                */
