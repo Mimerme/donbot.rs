@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "Executing all unit tests"
+cargo test --bin test

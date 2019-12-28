@@ -33,5 +33,3 @@ path = "src/config_oauth.rs"
 [[bin]]
 name = "auto_stitch"
 path = "src/auto_stitch.rs"
-
-

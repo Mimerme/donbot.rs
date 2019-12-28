@@ -1,0 +1,6 @@
+echo "Building the targets..."
+cargo build
+rm -rf ./target/output
+mkdir ./target/output
+mv ./target/debug/auto_stitch target/output/auto_stitch
+mv ./target/debug/config_oauth target/output/config_oauth
