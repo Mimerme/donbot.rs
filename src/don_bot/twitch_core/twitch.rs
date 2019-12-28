@@ -11,7 +11,6 @@ const CDN_ENDPOINT : &str = "https://clips-media-assets2.twitch.tv/";
 const CLIENT_ID : &str = "s0w8u8kr3e0s0mqgnzhyoom0bh7jzc";
 
 
-
 #[derive(Deserialize)]
 pub struct Twitch_Clip {
 	pub id: String,

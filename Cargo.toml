@@ -13,12 +13,22 @@ serde_json = "1.0"
 rust-ini = "0.13.0"
 gstreamer = "0.15.0" 
 glib = "0.9.0"
+google-youtube3 = "*"
+yup-oauth2 = "^1.0"
+hyper = "^0.10"
+hyper-rustls = "^0.6"
+
 
 # Placeholder build target. Specify this binary to test all the modules 
 # If you don't ALL targets will be built (f 2 ur CPU)
+# Also faster than check cuz check goes through all the dependencies
 [[bin]]
 name = "test"
-path = "src/hello_world.rs"
+path = "src/test.rs"
+
+[[bin]]
+name = "config_oauth"
+path = "src/config_oauth.rs"
 
 [[bin]]
 name = "auto_stitch"
