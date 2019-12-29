@@ -7,17 +7,27 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 		
 [dependencies]
+# General
 reqwest = { version = "0.10.0-alpha.2", features = ["blocking"]}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-rust-ini = "0.13.0"
-gstreamer = "0.15.0" 
-glib = "0.9.0"
-google-youtube3 = "*"
 yup-oauth2 = "^1.0"
 hyper = "^0.10"
 hyper-rustls = "^0.6"
+rust-ini = "0.13.0"
 
+# Automatic Updates
+rocket = "0.4.2"
+
+# Gstreamer
+gstreamer = "0.15.0" 
+
+# Youtube Core
+glib = "0.9.0"
+google-youtube3 = "*"
+
+# Twitch Chat
+twitchchat = "0.7.2"
 
 # Placeholder build target. Specify this binary to test all the modules 
 # If you don't ALL targets will be built (f 2 ur CPU)
@@ -33,3 +43,7 @@ path = "src/config_oauth.rs"
 [[bin]]
 name = "auto_stitch"
 path = "src/auto_stitch.rs"
+
+[[bin]]
+name = "updater"
+name = "src/updater.rs"

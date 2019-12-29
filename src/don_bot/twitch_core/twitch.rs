@@ -44,12 +44,11 @@ pub fn download_clip(client : &reqwest::blocking::Client, url : &str, download_d
 		let mut fname = filename.to_string();
 		filter_filename(&mut fname);
         let path = format!("{}{}{}", download_dir, "/", &fname);
-        println!("will be located under: '{:?}'", path);
+        //println!("will be located under: '{:?}'", path);
         File::create(&path).unwrap()
     };
 
     // Copy the contents from the response into the destination
-    // NOTE: Weird design cuz of 0-cost abstraction?
     copy(&mut res, &mut dest);
 
     Ok(())
