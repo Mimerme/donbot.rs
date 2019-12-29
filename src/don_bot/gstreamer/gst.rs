@@ -16,6 +16,7 @@ use gstreamer::ErrorMessage;
 
 // Returns a pipeline to to run
 // Set sample_rate to -1 to use the default sample rate
+//TODO: Probaly work on this pipeline a bit more. Doesn't even use the fps parameter LOL
 pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sample_rate : u32) -> Result<g::Pipeline, String>{
     g::init().map_err(|_| "gstreamer initialization failed")?;
 
@@ -167,7 +168,7 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sa
             let resample_sink = audioresample.get_static_pad("sink").unwrap();
             //Link our dynamic pipeline to the concat pad
             src_pad.link(&resample_sink);
-            println!("Sample Rate: {:?}", 44100);
+            //println!("Sample Rate: {:?}", 44100);
             //TODO: Fix up the cap building
             audioresample.link_filtered(&audioconverter, Some(&g::Caps::new_simple("audio/x-raw", &[("rate", &44100)])));
             //audioresample.link_filtered(&audioconverter, Some(&resample_cap));

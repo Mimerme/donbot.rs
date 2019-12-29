@@ -40,21 +40,12 @@ pub fn download_clip(client : &reqwest::blocking::Client, url : &str, download_d
 
 	// Create a new File struct
 	let mut dest : File = {
-		// Not sure what these all do but o' well
-		let fname = res
-				.url()
-				.path_segments()
-		        .and_then(|segments| segments.last())
-		        .and_then(|name| if name.is_empty() { None } else { Some(name) })
-		        .unwrap_or("tmp.mp4");	
-
-
 		//println!("file to download: '{}'", fname);
-		let mut filename = fname.to_string();
-		filter_filename(&mut filename);
-        let fname = format!("{}{}{}", download_dir, "/", &filename);
-        //println!("will be located under: '{:?}'", fname);
-        File::create(&fname).unwrap()
+		let mut fname = filename.to_string();
+		filter_filename(&mut fname);
+        let path = format!("{}{}{}", download_dir, "/", &fname);
+        println!("will be located under: '{:?}'", path);
+        File::create(&path).unwrap()
     };
 
     // Copy the contents from the response into the destination
@@ -99,7 +90,10 @@ pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String
   	//TODO: Proper error handling
   	let mut json : Helix_Response = serde_json::from_str(&body).unwrap();
   	for mut clip in &mut (json.data) {
-  		clip.mp4_url = format!("{}/{}.mp4", CDN_ENDPOINT, (clip.thumbnail_url.split("-preview-").collect::<Vec<&str>>())[0]);
+        let left_half = (clip.thumbnail_url.split("-preview-").collect::<Vec<&str>>())[0];
+        let id = left_half.split("https://clips-media-assets2.twitch.tv/").collect::<Vec<&str>>()[1];
+
+  		clip.mp4_url = format!("{}{}.mp4", CDN_ENDPOINT, id);
   	}
 
 
