@@ -37,7 +37,6 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sa
 
     println!("Elements initialized");
 
-
     //Setting the properties of the elements
     filesink.set_property("location", &output);
 
@@ -46,25 +45,15 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sa
     pipeline.add_many(&[&x264enc, &filesink, &muxer, &audio_concat, &video_concat, &faac, &aacparse, &audioconvert]);
 
     //Linking the video stream concatnation
-    //video_concat.link(&x264enc);
-    //x264enc.link(&muxer);
     let video_stream = [&video_concat, &x264enc, &muxer];
     g::Element::link_many(&video_stream);
 
     //Linking the audio stream concatnation
-    //audio_concat.link(&audioconvert);
-    //audioconvert.link(&faac);
-    //faac.link(&aacparse);
-    //aacparse.link(&muxer);
     let audio_stream = [&audio_concat, &audioconvert, &faac, &aacparse, &muxer];
     g::Element::link_many(&audio_stream);
 
     let muxer_to_file = [&muxer, &filesink];
     g::Element::link_many(&muxer_to_file);
-    //muxer.link(&filesink);
-
-
-    
 
     for clip in clips {
         // Prepare some weak references because decodebin will be storing references

@@ -3,6 +3,7 @@ use reqwest;
 use serde::{Deserialize};
 use std::fs::File;
 use std::io::copy;
+use chrono::{DateTime, Utc};
 
 const HELIX_ENDPOINT : &str = "https://api.twitch.tv/helix/{}";
 const V5_ENDPOINT : &str= "https://api.twitch.tv/kraken/{}";
@@ -55,9 +56,11 @@ pub fn download_clip(client : &reqwest::blocking::Client, url : &str, download_d
 }
 
 //TODO: Proper error handling
-pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String) -> Result<Vec<Twitch_Clip>, String> {
+pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> Result<Vec<Twitch_Clip>, String> {
     let res = client.get("https://api.twitch.tv/helix/clips")
-    				.query(&[("game_id", game_id)])
+    				.query(&[("game_id", game_id),
+                             ("started_at", start_time.to_rfc3339()),
+                             ("ended_at", end_time.to_rfc3339())])
     				.header("Client-ID", CLIENT_ID)
                     .send().unwrap();
 
@@ -94,7 +97,6 @@ pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String
 
   		clip.mp4_url = format!("{}{}.mp4", CDN_ENDPOINT, id);
   	}
-
 
     return Ok(json.data);
 }

@@ -15,9 +15,12 @@ yup-oauth2 = "^1.0"
 hyper = "^0.10"
 hyper-rustls = "^0.6"
 rust-ini = "0.13.0"
+chrono = "0.4.10"
 
 # Automatic Updates
 rocket = "0.4.2"
+rocket_contrib = "0.4.2"
+git2 = "0.11.0"
 
 # Gstreamer
 gstreamer = "0.15.0" 
@@ -46,4 +49,4 @@ path = "src/auto_stitch.rs"
 
 [[bin]]
 name = "updater"
-name = "src/updater.rs"
+path = "src/updater.rs"

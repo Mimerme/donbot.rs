@@ -1,8 +1,10 @@
+use chrono::{Date, Utc, NaiveDate, DateTime};
+
 #[test]
 fn test_get_helix_clips(){
     use super::*;
 
-    let res = get_helix_top_clips(&reqwest::blocking::Client::new(), "29595".to_string());
+    let res = get_helix_top_clips(&reqwest::blocking::Client::new(), "29595".to_string(), DateTime::from_utc(NaiveDate::from_ymd(2019, 1, 1).and_hms(0,0,0), Utc) ,Utc::now());
     
     match res {
         Result::Ok(res) => assert!(true),
