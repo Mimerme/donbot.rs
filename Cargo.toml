@@ -32,6 +32,10 @@ google-youtube3 = "*"
 # Twitch Chat
 twitchchat = "0.7.2"
 
+# Chat Notification
+notify-rust = "3"
+rodio = "0.10.0"
+
 # Placeholder build target. Specify this binary to test all the modules 
 # If you don't ALL targets will be built (f 2 ur CPU)
 # Also faster than check cuz check goes through all the dependencies
@@ -50,3 +54,8 @@ path = "src/auto_stitch.rs"
 [[bin]]
 name = "updater"
 path = "src/updater.rs"
+
+[[bin]]
+name = "chat_note"
+path = "src/chat_note.rs"
+
