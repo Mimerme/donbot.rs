@@ -8,6 +8,8 @@ use ini::Ini;
 use serde::{Deserialize};
 use rocket_contrib::json::{Json, JsonValue};
 use git2::Repository;
+use chrono::prelude::*;
+use ini::Ini;
 
 //Automatically updates and schedules the auto_stitcher binary
 
@@ -58,7 +60,14 @@ fn git_pull() {
     };
 }
 
-fn rebuild_auto_stitcher() {
+fn rebuild_auto_stitcher(path : &str, remote : &str, branch : &str) {
+    println!("!!! Starting new build @ {}", Local::now().to_rfc3339());
+   
+    //Initializing the repository and fetching the latest commits
+    let repo = Repository::init(path).unwrap();
+    let remote = repo.find_remote(remote).unwrap();
+    remote.fetch(&[branch], None, None);
+
 
 }
 
