@@ -23,7 +23,8 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sa
     println!("Constructing pipeline");
 
     let pipeline = g::Pipeline::new(None);
-    
+   
+    let progress_report = g::ElementFactory::make("progressreport", None).map_err(|_| "missing progressreport element")?;
     let filesink = g::ElementFactory::make("filesink", None).map_err(|_| "missing filesink element")?;
     let video_concat = g::ElementFactory::make("concat", None).map_err(|_| "missing concat element")?;
     let audio_concat = g::ElementFactory::make("concat", None).map_err(|_| "missing concat element")?;
@@ -39,10 +40,11 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sa
 
     //Setting the properties of the elements
     filesink.set_property("location", &output);
+    progress_report.set_property("format", &"seconds");
 
 
     //Adding the encoding portion of the pipeline here
-    pipeline.add_many(&[&x264enc, &filesink, &muxer, &audio_concat, &video_concat, &faac, &aacparse, &audioconvert]);
+    pipeline.add_many(&[&x264enc, &filesink, &muxer, &audio_concat, &video_concat, &faac, &aacparse, &audioconvert, &progress_report]);
 
     //Linking the video stream concatnation
     let video_stream = [&video_concat, &x264enc, &muxer];
@@ -52,7 +54,8 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sa
     let audio_stream = [&audio_concat, &audioconvert, &faac, &aacparse, &muxer];
     g::Element::link_many(&audio_stream);
 
-    let muxer_to_file = [&muxer, &filesink];
+    //Linking the fileoutput of the pipline and a progress report
+    let muxer_to_file = [&muxer, &progress_report,&filesink];
     g::Element::link_many(&muxer_to_file);
 
     for clip in clips {
@@ -217,13 +220,13 @@ pub fn run_pipeline(pipeline : g::Pipeline) -> Result<(), String> {
                 if state_changed.get_current() == gstreamer::State::Playing
                 {
                     // Generate a dot graph f the pipeline to GST_DEBUG_DUMP_DOT_DIR if defined
-                    println!("Wrote playing state!");
+                    //println!("Wrote playing state!");
                     pipeline.debug_to_dot_file(gstreamer::DebugGraphDetails::all(), "PLAYING");
                 }
                 else if state_changed.get_current() == gstreamer::State::Paused
                 {
                     // Generate a dot graph f the pipeline to GST_DEBUG_DUMP_DOT_DIR if defined
-                    println!("Wrote paused state!");
+                    //println!("Wrote paused state!");
                     pipeline.debug_to_dot_file(gstreamer::DebugGraphDetails::all(), "PAUSE");
                 }
 

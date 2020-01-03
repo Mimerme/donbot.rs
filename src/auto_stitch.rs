@@ -12,6 +12,7 @@ use don_bot::twitch_core::{download_clip, get_helix_top_clips, Twitch_Clip};
 use don_bot::gstreamer::{run_pipeline, stitch_videos_pipeline};
 use don_bot::youtube_core::{upload_video};
 use std::time::{SystemTime, UNIX_EPOCH};
+use chrono::{Date, Utc, NaiveDate, DateTime, Datelike};
 
 pub fn main() {
     println!("Loading from Ini file");
@@ -29,8 +30,12 @@ pub fn main() {
 
     // Get a deserialized JSON response fo the top clips on twitch
     let client = reqwest::blocking::Client::new();
-    let clips = get_helix_top_clips(&client, GAME_ID.to_string()).unwrap();
 
+    let current_date = Utc::now().date().naive_utc();
+    //TODO: lol this is wrong
+    let clips = get_helix_top_clips(&client, GAME_ID.to_string(), DateTime::from_utc(
+            NaiveDate::from_ymd(current_date.year(), current_date.month(), current_date.day() - 1).and_hms(0,0,0), Utc) ,Utc::now()).unwrap();
+    
     //Generate a time stamp to create the folder name with
     let start = SystemTime::now();
     let since_the_epoch = start.duration_since(UNIX_EPOCH)
