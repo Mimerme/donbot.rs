@@ -2,194 +2,114 @@ extern crate gstreamer as g;
 use gstreamer::prelude::*;
 use gstreamer::ErrorMessage;
 
+extern crate gstreamer_editing_services as ges;
+use ges::prelude::*;
 
-// based on this pipeline
-//gst-launch-1.0 mpegtsmux name=mux ! filesink location=lul.mp4  
-//               concat name=c ! videoconvert ! videoscale ! x264enc ! mux.  
-//               concat name=d ! audioconvert ! faac ! aacparse ! mux.  
-//               filesrc location=~/projects/donbot.rs/downloads/AT-cm585662124.mp4 ! decodebin name=f1  
-//               filesrc location=~/Downloads/SampleVideo_1280x720_1mb.mp4 ! decodebin name=f2  
-//               f2. ! video/x-raw ! queue ! c.  
-//               f1. ! capsfilter caps=video/x-raw ! queue ! c.  
-//               f2. ! audioresample ! audio/x-raw,rate=44100 ! audioconvert ! audio/x-raw,channels=2 ! queue ! d.  
-//               f1. ! audio/x-raw ! queue ! d.
-
-// Returns a pipeline to to run
-// Set sample_rate to -1 to use the default sample rate
-//TODO: Probaly work on this pipeline a bit more. Doesn't even use the fps parameter LOL
-pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sample_rate : u32) -> Result<g::Pipeline, String>{
-    g::init().map_err(|_| "gstreamer initialization failed")?;
-
-    println!("Constructing pipeline");
-
-    let pipeline = g::Pipeline::new(None);
-   
-    let progress_report = g::ElementFactory::make("progressreport", None).map_err(|_| "missing progressreport element")?;
-    let filesink = g::ElementFactory::make("filesink", None).map_err(|_| "missing filesink element")?;
-    let video_concat = g::ElementFactory::make("concat", None).map_err(|_| "missing concat element")?;
-    let audio_concat = g::ElementFactory::make("concat", None).map_err(|_| "missing concat element")?;
-    
-    //Encoders, parser, and muxer
-    let x264enc = g::ElementFactory::make("x264enc", None).map_err(|_| "missing x264enc element")?;
-    let faac = g::ElementFactory::make("faac", None).map_err(|_| "missing faac element")?;
-    let aacparse = g::ElementFactory::make("aacparse", None).map_err(|_| "missing aacparse element")?;
-    let audioconvert = g::ElementFactory::make("audioconvert", None).map_err(|_| "missing audioconvert element")?;
-    let muxer = g::ElementFactory::make("mpegtsmux", None).map_err(|_| "missing mpegtsmux element")?;
-
-    println!("Elements initialized");
-
-    //Setting the properties of the elements
-    filesink.set_property("location", &output);
-    progress_report.set_property("format", &"seconds");
+extern crate gstreamer_pbutils as gst_pbutils;
+extern crate glib;
 
 
-    //Adding the encoding portion of the pipeline here
-    pipeline.add_many(&[&x264enc, &filesink, &muxer, &audio_concat, &video_concat, &faac, &aacparse, &audioconvert, &progress_report]);
+pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sample_rate : u32) -> Result<ges::Pipeline, String>{
+    ges::init().unwrap();
 
-    //Linking the video stream concatnation
-    let video_stream = [&video_concat, &x264enc, &muxer];
-    g::Element::link_many(&video_stream);
+    // Begin by creating a timeline with audio and video tracks
+    let timeline = ges::Timeline::new_audio_video();
+    // Create a new layer that will contain our timed clips.
+    let layer = timeline.append_layer();
+    let pipeline = ges::Pipeline::new();
+    pipeline.set_timeline(&timeline).unwrap();
 
-    //Linking the audio stream concatnation
-    let audio_stream = [&audio_concat, &audioconvert, &faac, &aacparse, &muxer];
-    g::Element::link_many(&audio_stream);
-
-    //Linking the fileoutput of the pipline and a progress report
-    let muxer_to_file = [&muxer, &progress_report,&filesink];
-    g::Element::link_many(&muxer_to_file);
-
+    let mut current_time = g::ClockTime::from_seconds(0);
     for clip in clips {
-        // Prepare some weak references because decodebin will be storing references
-        // to these GstObjects cause we use  them in the move closure
-        let pipeline_weak = pipeline.downgrade();
-        let video_concat_weak = video_concat.downgrade();
-        let audio_concat_weak = audio_concat.downgrade();
+        println!("file://{}", clip);
+        let clip = ges::UriClip::new(&format!("file://{}", clip)).expect("Failed to create clip");
 
-        //Create a filesrcs and decodebin element for each file
-        let filesrc = g::ElementFactory::make("filesrc", None).map_err(|_| "missing filesrc element")?;
-        //We're using decodebin here to demux the files
-        let decodebin = g::ElementFactory::make("decodebin", None).map_err(|_| "missing decodebin element")?;
+       // Add an effect to the clip's video stream.
+       //let effect = ges::Effect::new("agingtv").expect("Failed to create effect");
+       //clip.add(&effect).unwrap();
+
+       /*println!(
+           "Agingtv scratch-lines: {}",
+           clip.get_child_property("scratch-lines")
+               .unwrap()
+               .serialize()
+               .unwrap()
+       );*/
+
+       // Retrieve the asset that was automatically used behind the scenes, to
+       // extract the clip from.
+       let asset = clip.get_asset().unwrap();
+       let duration = asset
+           .downcast::<ges::UriClipAsset>()
+           .unwrap()
+           .get_duration();
+       /*println!(
+           "Clip duration: {} - playing file from {} for {}",
+           duration,
+           current_time,
+           duration
+       );*/
+
+       // The inpoint specifies where in the clip we start, the duration specifies
+       // how much we play from that point onwards. Setting the inpoint to something else
+       // than 0, or the duration something smaller than the clip's actual duration will
+       // cut the clip.
+       clip.set_inpoint(g::ClockTime::from_seconds(0));
+       clip.set_start(current_time);
+       clip.set_duration(duration);
+       current_time = current_time + duration; 
+       layer.add_clip(&clip).unwrap();
+    }
 
 
-        filesrc.set_property("location", &clip)
-            .map_err(|_| "setting location property failed")?;
+    let a = gst_pbutils::Discoverer::new(g::ClockTime::from_seconds(2)).unwrap().discover_uri("file:///home/mimerme/projects/donbot.rs/downloads/test/TardyPlayfulMangoImGlitch.mp4").unwrap();
+    timeline.save_to_uri::<ges::UriClipAsset>(&format!("file://{}", "/home/mimerme/lul.mp4"), None, true);
+    pipeline.set_render_settings("file:///home/mimerme/f.mp4", &gst_pbutils::EncodingProfile::from_discoverer(&a).unwrap());
+    pipeline.set_mode(ges::PipelineFlags::RENDER);
 
-        pipeline.add_many(&[&filesrc, &decodebin]);
-        
-        filesrc.link(&decodebin);
+    // Load a clip from the given uri and add it to the layer.
 
-        decodebin.connect_pad_added(move |_, src_pad| {
+    pipeline
+        .set_state(g::State::Playing)
+        .expect("Unable to set the pipeline to the `Playing` state");
 
-            // Convert the weak refernece back into strong ones so we can use them
-            let pipeline = match pipeline_weak.upgrade() {
-                Some(pipeline) => pipeline,
-                None => return
-            };
-            let video_concat = match video_concat_weak.upgrade() {
-                Some(concat) => concat,
-                None => return
-            };
-            let audio_concat = match audio_concat_weak.upgrade() {
-                Some(concat) => concat,
-                None => return
-            };
+    let bus = pipeline.get_bus().unwrap();
+    for msg in bus.iter_timed(g::CLOCK_TIME_NONE) {
+        use g::MessageView;
 
-           // Try to detect whether the raw stream decodebin provided us with
-           // just now is either audio or video (or none of both, e.g. subtitles).
-           let (is_audio, is_video) = {
-            let media_type = src_pad.get_current_caps().and_then(|caps| {
-                caps.get_structure(0).map(|s| {
-                    let name = s.get_name();
-                    (name.starts_with("audio/"), name.starts_with("video/"))
-                })
-            });
-
-            match media_type {
-                None => {
-                    /*gst_element_warning!(
-                        dbin,
-                        gst::CoreError::Negotiation,
-                        ("Failed to get media type from pad {}", src_pad.get_name())
-                    );*/
-                    println!("Failed to get media type from pad");
-
-                    return;
-                }
-                Some(media_type) => media_type,
+        match msg.view() {
+            MessageView::Eos(..) => break,
+            MessageView::Error(err) => {
+                println!(
+                    "Error from {:?}: {} ({:?})",
+                    err.get_src().map(|s| s.get_path_string()),
+                    err.get_error(),
+                    err.get_debug()
+                );
+                break;
             }
-        };
-
-
-        let queue = g::ElementFactory::make("queue", None).map_err(|_| "missing queue element").unwrap();
-        pipeline.add(&queue);
-
-        if is_video {
-            let capsfilter = g::ElementFactory::make("capsfilter", None).unwrap();
-            let video_cap = g::Caps::new_simple("video/x-raw", &[]);
-           
-            pipeline.add(&capsfilter);
-
-            capsfilter.set_property("caps", &video_cap.to_value()).unwrap();
-
-            let caps_sink = capsfilter.get_static_pad("sink").unwrap();
-
-            src_pad.link(&caps_sink);
-            capsfilter.link(&queue);
-            queue.link(&video_concat);
-
-            capsfilter.sync_state_with_parent();
+            _ => (),
         }
-        else if is_audio {
-            //Resample, interleave, and flatten the audio
-            //NOTE: Might want to change how the audio is processed here
-            
-            //Create the caps
-            let resample_cap = if 1 == 0 { 
-                g::Caps::new_simple("audio/x-raw", &[])           
-            }
-            else {
-                g::Caps::new_simple("audio/x-raw", &[("rate", &"44100")]) 
-            };
-            let channel_cap = g::Caps::new_simple("audio/x-raw", &[("channels", &2)]);
+    }
 
-            let audioresample =  g::ElementFactory::make("audioresample", None).map_err(|_| "missing audioresample element").unwrap();
-            let audioconverter = g::ElementFactory::make("audioconvert", None).map_err(|_| "missing audioconverter element").unwrap();
+    pipeline
+        .set_state(g::State::Null)
+        .expect("Unable to set the pipeline to the `Null` state");
 
-            pipeline.add_many(&[&audioconverter, &audioresample]);
-
-            let resample_sink = audioresample.get_static_pad("sink").unwrap();
-            //Link our dynamic pipeline to the concat pad
-            src_pad.link(&resample_sink);
-            //println!("Sample Rate: {:?}", 44100);
-            //TODO: Fix up the cap building
-            audioresample.link_filtered(&audioconverter, Some(&g::Caps::new_simple("audio/x-raw", &[("rate", &44100)])));
-            //audioresample.link_filtered(&audioconverter, Some(&resample_cap));
-            audioconverter.link_filtered(&queue, Some(&channel_cap));
-            queue.link(&audio_concat);
-
-            audioresample.sync_state_with_parent();
-            audioconverter.sync_state_with_parent();
-        }
-
-        queue.sync_state_with_parent();
-
-            //Remember to synchronize your elements state to their parents 
-            //if you create new elements within the closure!!!
-        });
-    };
-
-    return Ok(pipeline);
+    Ok(pipeline)
 }
 
-pub fn run_pipeline(pipeline : g::Pipeline) -> Result<(), String> {
+
+
+pub fn run_pipeline(pipeline : ges::Pipeline) -> Result<(), String> {
     // Below is code to look over the pipeline bus.
     // Looks leik its mainly for debugging purposes but idk I just ripped it from here:
     // https://github.com/sdroege/gstreamer-rs/blob/be3c378f289683e8c0e7b7cfaff5dc74972bb074/examples/src/bin/playbin.rs    
 
-    pipeline.debug_to_dot_file(gstreamer::DebugGraphDetails::all(), "NOT_PLAYING");
+    //pipeline.debug_to_dot_file(gstreamer::DebugGraphDetails::all(), "NOT_PLAYING");
     
     //TODO: Proper error handling
-    pipeline.set_state(gstreamer::State::Playing).map_err(|_| "error playing")?;
+    pipeline.set_state(gstreamer::State::Playing).map_err(|_| "error playing").unwrap();
 
     println!("Running");
 
@@ -212,23 +132,32 @@ pub fn run_pipeline(pipeline : g::Pipeline) -> Result<(), String> {
                     err.get_error(),
                     err.get_debug()
                 );
+
+//                pipeline.debug_to_dot_file(gstreamer::DebugGraphDetails::all(), "error");
                 break;
             }
-            MessageView::StateChanged(state_changed) =>
+            MessageView::StateChanged(s) =>
             {
-                println!("State changed");
-                if state_changed.get_current() == gstreamer::State::Playing
+                    /*println!(
+                    "State changed from {:?}: {:?} -> {:?} ({:?})",
+                    s.get_src().map(|s| s.get_path_string()),
+                    s.get_old(),
+                    s.get_current(),
+                    s.get_pending()
+                    );*/
+
+//                pipeline.debug_to_dot_file(gstreamer::DebugGraphDetails::all(), format!("{:?}_{:?}", s.get_old(), s.get_current()));
+                /*if state_changed.get_current() == gstreamer::State::Playing
                 {
                     // Generate a dot graph f the pipeline to GST_DEBUG_DUMP_DOT_DIR if defined
                     //println!("Wrote playing state!");
-                    pipeline.debug_to_dot_file(gstreamer::DebugGraphDetails::all(), "PLAYING");
                 }
                 else if state_changed.get_current() == gstreamer::State::Paused
                 {
                     // Generate a dot graph f the pipeline to GST_DEBUG_DUMP_DOT_DIR if defined
                     //println!("Wrote paused state!");
                     pipeline.debug_to_dot_file(gstreamer::DebugGraphDetails::all(), "PAUSE");
-                }
+                }*/
 
             }
 
