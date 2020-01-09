@@ -36,11 +36,11 @@ pub struct PayloadPusher {
     pub email : String
 }
 
-#[get("/". format = "json")]
+/*#[get("/". format = "json")]
 fn ping(){
     res.
 
-}
+}*/
 
 
 #[post("/", format = "json",data = "<payload_data>")]

@@ -1,0 +1,24 @@
+[GStreamer Encoding Target]
+name=test1
+category=donbot
+description=a test
+
+[profile-auto-generated]
+name=auto-generated
+type=container
+description[c]=Automatically generated from GstDiscovererInfo
+format=video/quicktime, variant=(string)iso
+
+[streamprofile-auto-generated-0]
+parent=auto-generated
+type=audio
+format=audio/mpeg, mpegversion=(int)4, level=(string)2, base-profile=(string)lc, profile=(string)lc, rate=(int)44100, channels=(int)2
+presence=0
+
+[streamprofile-auto-generated-1]
+parent=auto-generated
+type=video
+format=video/x-h264, level=(string)3.2, profile=(string)high, width=(int)1920, height=(int)1080, framerate=(fraction)60/1, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive, chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, bit-depth-chroma=(uint)8
+presence=0
+pass=0
+variableframerate=false

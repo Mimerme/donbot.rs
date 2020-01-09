@@ -36,7 +36,7 @@ fn gen_application_secret(cfg : Ini) -> ApplicationSecret {
     return secret;
 }
 
-pub fn upload_video(cfg : Ini, video_path : &str) -> YResult<(Response, Video)> {
+pub fn upload_video(cfg : Ini, video_path : &str, name : &str, description : Option<&str>) -> YResult<(Response, Video)> {
     println!("Starting video upload");
 
     let secret = gen_application_secret(cfg);

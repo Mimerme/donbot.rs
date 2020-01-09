@@ -67,12 +67,12 @@ pub fn main() {
     }
 
     println!("Clips finished downloading. Constructing the stitching pipeline...");
-    let concat_pipeline = stitch_videos_pipeline(mp4s_to_concat, "/home/mimerme/projects/donbot.rs/downloads/output.mp4".to_string(),60, 44100).unwrap();
+    let concat_pipeline = stitch_videos_pipeline(mp4s_to_concat, &cfg).unwrap();
     println!("Running the concatnation pipeline...");
     run_pipeline(concat_pipeline);
-    //println!("Uploading the video...");
-    //let res = upload_video(cfg, &"/home/mimerme/projects/donbot.rs/downloads/output.mp4".to_string()).unwrap(); 
-    //println!("Response: {:?}", res);
+    println!("Uploading the video...");
+    let res = upload_video(cfg, &"/home/mimerme/projects/donbot.rs/downloads/output.mp4".to_string()).unwrap(); 
+    println!("Response: {:?}", res);
 }
 
 fn filter_filename(filename_in : &mut String){
@@ -92,7 +92,7 @@ pub fn test_stitching(){
     let mp4s_to_concat = files_within_dir(Path::new("/home/mimerme/projects/donbot.rs/downloads/test"));
     println!("{:?}", mp4s_to_concat);
 
-    let concat_pipeline = stitch_videos_pipeline(mp4s_to_concat, "/home/mimerme/projects/donbot.rs/downloads/output.mp4".to_string(),60, 44100).unwrap();
+    let concat_pipeline = stitch_videos_pipeline(mp4s_to_concat, &cfg).unwrap();
     println!("Running the concatnation pipeline...");
     run_pipeline(concat_pipeline);
 
