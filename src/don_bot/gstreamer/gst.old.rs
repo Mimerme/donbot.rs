@@ -1,7 +1,7 @@
 extern crate gstreamer as g;
 use gstreamer::prelude::*;
 use gstreamer::ErrorMessage;
-
+use ini::Ini;
 
 //based on this pipeline
 //gst-launch-1.0 mpegtsmux name=mux ! filesink location=lul.mp4  
@@ -17,7 +17,7 @@ use gstreamer::ErrorMessage;
 // Returns a pipeline to to run
 // Set sample_rate to -1 to use the default sample rate
 //TODO: Probaly work on this pipeline a bit more. Doesn't even use the fps parameter LOL
-pub fn stitch_videos_pipeline(clips : Vec<String>, output : String, fps : i8, sample_rate : u32) -> Result<g::Pipeline, String>{
+pub fn stitch_videos(clips : Vec<String>, cfg : Ini) -> Result<g::Pipeline, String>{
     g::init().map_err(|_| "gstreamer initialization failed")?;
 
     println!("Constructing pipeline");
