@@ -62,3 +62,7 @@ path = "src/updater.rs"
 name = "chat_note"
 path = "src/chat_note.rs"
 
+[[bin]]
+name = "gen_enc"
+path = "src/gen_encoding.rs"
+

@@ -9,5 +9,5 @@ fn test_upload_video(){
     return;
 
     let cfg = Ini::load_from_file("config.ini").unwrap();
-    println!("Response: {:?}", upload_video(cfg, "/home/mimerme/projects/donbot.rs/downloads/AT-cm585662124.mp4").unwrap()); 
+    //println!("Response: {:?}", upload_video(cfg, "/home/mimerme/projects/donbot.rs/downloads/AT-cm585662124.mp4").unwrap()); 
 }

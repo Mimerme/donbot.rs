@@ -57,6 +57,8 @@ pub fn download_clip(client : &reqwest::blocking::Client, url : &str, download_d
 
 //TODO: Proper error handling
 pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> Result<Vec<Twitch_Clip>, String> {
+    println!("Start time: {}", start_time.to_rfc3339());
+    println!("End time: {}", end_time.to_rfc3339());
     let res = client.get("https://api.twitch.tv/helix/clips")
     				.query(&[("game_id", game_id),
                              ("started_at", start_time.to_rfc3339()),

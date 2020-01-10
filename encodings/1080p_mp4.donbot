@@ -1,7 +1,7 @@
 [GStreamer Encoding Target]
-name=test1
+name=donbot-encoding-target
 category=donbot
-description=a test
+description=
 
 [profile-auto-generated]
 name=auto-generated
@@ -18,7 +18,7 @@ presence=0
 [streamprofile-auto-generated-1]
 parent=auto-generated
 type=video
-format=video/x-h264, level=(string)3.2, profile=(string)high, width=(int)1920, height=(int)1080, framerate=(fraction)60/1, pixel-aspect-ratio=(fraction)1/1, interlace-mode=(string)progressive, chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, bit-depth-chroma=(uint)8
+format=video/x-h264, level=(string)5, height=(int)1080, width=(int)1920, profile=(string)high, framerate=(fraction)60/1, pixel-aspect-ratio=(fraction)1/1
 presence=0
 pass=0
 variableframerate=false

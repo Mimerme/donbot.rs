@@ -52,6 +52,7 @@ pub use gst::run_pipeline;
 /// * '&pipeline' - Reference of pipeline to add elements to
 /// * 'filesrcs' - Vec<gstreamer::Element> of filesrc elements to concat
 pub use gst::stitch_videos_pipeline;
+pub use gst::generate_encoding_profile;
 
 /// Outputs a video by attatching a filesink element
 /// * '&pipeline' - Reference of pipeline to add elements to

@@ -33,14 +33,14 @@ pub fn main() {
     // Get a deserialized JSON response fo the top clips on twitch
     let client = reqwest::blocking::Client::new();
 
-    let current_date = Utc::now().date().naive_utc();
+    let current_date = Utc::now().naive_utc();
     //TODO: lol this is wrong
     //let clips = get_helix_top_clips(&client, GAME_ID.to_string(), DateTime::from_utc(
     //        NaiveDate::from_ymd(current_date.year(), current_date.month(), current_date.day() - 1).and_hms(0,0,0), Utc) ,Utc::now()).unwrap();
     
     let clips = get_helix_top_clips(&client, GAME_ID.to_string(), DateTime::from_utc(
-            NaiveDate::from_ymd(2020, 1, 1).and_hms(0,0,0), Utc) ,DateTime::from_utc(
-            NaiveDate::from_ymd(2020, 2, 1).and_hms(0,0,0), Utc)).unwrap();
+            NaiveDate::from_ymd(2020, 1, 8).and_hms(0,0,0), Utc) ,DateTime::from_utc(
+            NaiveDate::from_ymd(2020, 1, 10).and_hms(0,0,0), Utc)).unwrap();
     //Generate a time stamp to create the folder name with
     let start = SystemTime::now();
     let since_the_epoch = start.duration_since(UNIX_EPOCH)
@@ -71,7 +71,7 @@ pub fn main() {
     println!("Running the concatnation pipeline...");
     run_pipeline(concat_pipeline);
     println!("Uploading the video...");
-    let res = upload_video(cfg, &"/home/mimerme/projects/donbot.rs/downloads/output.mp4".to_string()).unwrap(); 
+    let res = upload_video(cfg, &"/home/mimerme/projects/donbot.rs/downloads/output.mp4".to_string(), "", None).unwrap(); 
     println!("Response: {:?}", res);
 }
 
@@ -83,19 +83,17 @@ fn filter_filename(filename_in : &mut String){
 
 #[test]
 pub fn test_stitching(){
-
     let cfg = Ini::load_from_file("config.ini").unwrap();
     let auto_stitcher = cfg.section(Some("auto_stitch")).unwrap();
     let GAME_ID : &str = auto_stitcher.get("GAME_ID").unwrap();
     let DOWNLOAD_DIR : &str = auto_stitcher.get("DOWNLOAD_DIR").unwrap(); 
 
-    let mp4s_to_concat = files_within_dir(Path::new("/home/mimerme/projects/donbot.rs/downloads/test"));
+    let mp4s_to_concat = files_within_dir(Path::new("/home/mimerme/projects/donbot.rs/downloads/1578101953659"));
     println!("{:?}", mp4s_to_concat);
 
     let concat_pipeline = stitch_videos_pipeline(mp4s_to_concat, &cfg).unwrap();
     println!("Running the concatnation pipeline...");
     run_pipeline(concat_pipeline);
-
 }
 
 fn files_within_dir(dir : &Path) -> Vec<String> {

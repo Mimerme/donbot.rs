@@ -1,4 +1,5 @@
 extern crate gstreamer as g;
+
 use gstreamer::prelude::*;
 use gstreamer::ErrorMessage;
 use ini::Ini;
@@ -27,7 +28,8 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, cfg : &Ini) -> Result<ges::Pi
 
     let mut current_time = g::ClockTime::from_seconds(0);
     for clip in clips {
-        let clip = ges::UriClip::new(&format!("file://{}", clip)).expect("Failed to create clip");
+        println!("file://{}", clip);
+        let clip = ges::UriClip::new(&format!("file://{}", clip)).unwrap();
 
         // Retrieve the asset that was automatically used behind the scenes, to
        // extract the clip from.
@@ -51,12 +53,12 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, cfg : &Ini) -> Result<ges::Pi
     let empty_cap = g::Caps::new_empty();
     let profiles = gst_pbutils::EncodingTarget::load_from_file(&encoding_profile_file).unwrap().get_profiles();
 
+    println!("Reading Encoding Target From: {}", &encoding_profile_file);
     pipeline.set_render_settings(&format!("file://{}", output_file), &profiles[0]);
     pipeline.set_mode(ges::PipelineFlags::RENDER);
 
     Ok(pipeline)
 }
-
 
 
 pub fn run_pipeline(pipeline : ges::Pipeline) -> Result<(), String> {
@@ -127,3 +129,11 @@ pub fn run_pipeline(pipeline : ges::Pipeline) -> Result<(), String> {
     return Ok(());
 }
 
+pub fn generate_encoding_profile(source_uri : &str, output_file : &str){
+    ges::init().unwrap();
+    let discovered_file = gst_pbutils::Discoverer::new(g::ClockTime::from_seconds(2)).unwrap().discover_uri(&format!("file://{}", source_uri)).unwrap();
+    let profile : gst_pbutils::EncodingProfile  = gst_pbutils::EncodingProfile::from_discoverer(&discovered_file).unwrap();
+
+    let encoding_target = gst_pbutils::EncodingTarget::new("donbot-encoding-target", "donbot", "", &[profile]);
+    encoding_target.save_to_file(output_file).unwrap();
+}
