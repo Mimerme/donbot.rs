@@ -15,11 +15,15 @@ use std::sync::Mutex;
 //Automatically updates and schedules the auto_stitcher binary
 #[derive(Deserialize, Debug)]
 pub struct PushPayload {
-    pub commits : Vec<String>,
+    pub commits : Vec<PayloadCommit>,
     pub repository : PayloadRepo,
     pub pusher : PayloadPusher
 }
 
+#[derive(Deserialize, Debug)]
+pub struct PayloadCommit {
+    pub id: String
+}
 
 #[derive(Deserialize, Debug)]
 pub struct PayloadRepo {
@@ -36,16 +40,13 @@ pub struct PayloadPusher {
     pub email : String
 }
 
-/*#[get("/". format = "json")]
-fn ping(){
-    res.
-
-}*/
+#[get("/")]
+fn ping() -> String { "pong".to_string() }
 
 
 #[post("/", format = "json",data = "<payload_data>")]
-fn on_push(payload_data: Json<PushPayload>){
-    println!("Processing payload...");
+fn on_push(payload_data: Json<PushPayload>) -> String{
+    println!("Processing payload: {:?}", payload_data);
     let payload = payload_data.into_inner();
 
     //DEBUG
@@ -55,7 +56,7 @@ fn on_push(payload_data: Json<PushPayload>){
         println!("DonBot-rs new patch received and verified.");
         println!("New commits: ");
         for commit in payload.commits {
-            println!("Commit: {}", commit);
+            println!("Commit: {}", commit.id);
         }
         //Get the latest config values
         let cfg = Ini::load_from_file("config.ini").unwrap();
@@ -68,6 +69,20 @@ fn on_push(payload_data: Json<PushPayload>){
 
         rebuild_auto_stitcher(repo_path, remote, branch, post_build);
     }
+
+    return "success".to_string();
+}
+
+#[test]
+fn test_rebuild(){
+    let cfg = Ini::load_from_file("config.ini").unwrap();
+    let updater_section = cfg.section(Some("updater")).unwrap();
+    let repo_path = updater_section.get("REPO_PATH").unwrap();;
+    let remote = updater_section.get("REMOTE").unwrap();;
+    let branch = updater_section.get("BRANCH").unwrap();;
+    let post_build = updater_section.get("POST_BUILD").unwrap();
+
+    rebuild_auto_stitcher(repo_path, remote, branch, post_build);
 }
 
 //TODO: Really need to figure out how to do proper error handling here. Layz tn, but def l8er
@@ -104,25 +119,37 @@ fn rebuild_auto_stitcher(path : &str, remote : &str, branch : &str, post_build :
         
     cargo_proc.unwrap().wait();
 
-    println!("!!! Running post build script @ {}", Local::now().to_rfc3339());
+    println!("!!! Running post build script: {}", post_build);
 
-    //Run script/binary after the build to fix things up depending on the user's environment
-    let mut post_build_command = Command::new(post_build);
-
+    
     //NOTE: Post build stirng supports passing in arguments
     let args = post_build.split(" ").collect::<Vec<&str>>();
 
-    for arg in args {
-        post_build_command.arg(arg);
+    //Run script/binary after the build to fix things up depending on the user's environment
+    let mut post_build_command = Command::new(args[0]);
+    for x in 1..args.len() {
+        post_build_command.arg(args[x]);
     }
 
-    let post_build_proc = post_build_command.spawn();
-    post_build_proc.unwrap().wait();
+    let mut post_build_proc = post_build_command.spawn().unwrap();
+
+    match post_build_proc.try_wait() {
+        Ok(Some(status)) => println!("exited with: {}", status),
+        Ok(None) => {
+            let res = post_build_proc.wait();
+            println!("result: {:?}", res);
+        }
+        Err(e) => println!("error attempting to wait: {}", e)
+    }
 }
 
 
-
+#[catch(422)]
+fn not_found() -> String {
+    return "oopsie".to_string();
+}
 
 fn main(){
     println!("Starting GitHub Webhook Server...");
+    rocket::ignite().mount("/", routes![ping, on_push]).launch();
 }
