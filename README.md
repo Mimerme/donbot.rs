@@ -1,5 +1,5 @@
 # donbot.rs
-### DonBot is aimed to be an automated content creation toolkit for streamers and enthusiasts
+### DonBot is aimed to be an automated content creation toolkit for streamers and enthusiasts.
 
 ## Structure
 All drivers and build targets should be stored under ```/src```.
