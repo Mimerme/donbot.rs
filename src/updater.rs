@@ -46,7 +46,6 @@ fn ping() -> String { "pong".to_string() }
 
 #[post("/", format = "json",data = "<payload_data>")]
 fn on_push(payload_data: Json<PushPayload>) -> String{
-    println!("Processing payload: {:?}", payload_data);
     let payload = payload_data.into_inner();
 
     //DEBUG
