@@ -13,7 +13,7 @@ use hyper::client::response::Response;
 
 const SCOPES : [&str; 1] = ["https://www.googleapis.com/auth/youtube.upload"];
 
-fn gen_application_secret(cfg : Ini) -> ApplicationSecret {
+fn gen_application_secret(cfg : &Ini) -> ApplicationSecret {
     let client_id = cfg.section(Some("youtube")).unwrap().get("CLIENT_ID").unwrap();
     let client_secret = cfg.section(Some("youtube")).unwrap().get("CLIENT_SECRET").unwrap();
 
@@ -36,7 +36,7 @@ fn gen_application_secret(cfg : Ini) -> ApplicationSecret {
     return secret;
 }
 
-pub fn upload_video(cfg : Ini, video_path : &str, name : &str, description : Option<&str>) -> YResult<(Response, Video)> {
+pub fn upload_video(cfg : &Ini, video_path : &str, name : &str, description : Option<&str>) -> YResult<(Response, Video)> {
     println!("Starting video upload");
 
     let secret = gen_application_secret(cfg);
@@ -61,7 +61,7 @@ pub fn upload_video(cfg : Ini, video_path : &str, name : &str, description : Opt
 }
 
 
-pub fn config_oauth(cfg : Ini) -> Result<Token, String>{
+pub fn config_oauth(cfg : &Ini) -> Result<Token, String>{
     println!("===DON'T FORGET TO REMOVE THE EXTRA COMMA SOME TERMINALS COPY AT THE END OF THE URL===");
     let secret = gen_application_secret(cfg);
 

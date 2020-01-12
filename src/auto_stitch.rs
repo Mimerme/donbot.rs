@@ -73,7 +73,7 @@ pub fn main() {
     println!("Running the concatnation pipeline...");
     run_pipeline(concat_pipeline);
     println!("Uploading the video...");
-    let res = upload_video(cfg, &OUTPUT_FILE.to_string(), "", None).unwrap(); 
+    let res = upload_video(&cfg, &OUTPUT_FILE.to_string(), "", None).unwrap(); 
     println!("Response: {:?}", res);
 }
 
