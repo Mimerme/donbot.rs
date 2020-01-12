@@ -24,6 +24,8 @@ pub fn main() {
     let auto_stitcher = cfg.section(Some("auto_stitch")).unwrap();
     let GAME_ID : &str = auto_stitcher.get("GAME_ID").unwrap();
     let DOWNLOAD_DIR : &str = auto_stitcher.get("DOWNLOAD_DIR").unwrap(); 
+    let OUTPUT_FILE : &str = cfg.section(Some("gstreamer")).unwrap().get("OUTPUT_FILE").unwrap();
+
 
     //Some prints to make sure the values were read properly
     println!("Getting Twitch clips from '{}'", GAME_ID);
@@ -71,7 +73,7 @@ pub fn main() {
     println!("Running the concatnation pipeline...");
     run_pipeline(concat_pipeline);
     println!("Uploading the video...");
-    let res = upload_video(cfg, &"/home/mimerme/projects/donbot.rs/downloads/output.mp4".to_string(), "", None).unwrap(); 
+    let res = upload_video(cfg, &OUTPUT_FILE.to_string(), "", None).unwrap(); 
     println!("Response: {:?}", res);
 }
 
