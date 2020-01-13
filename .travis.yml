@@ -1,13 +1,14 @@
+os: linux
 language: rust
 rust:
   - nightly
 cache: cargo
 before_install:
   - sudo apt-get install libsdl2-dev
-  - sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-      gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
-      gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
-      gstreamer1.0-libav libgstrtspserver-1.0-dev
+  - sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+  - sudo apt-get install gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+  - sudo apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
+  - sudo apt-get install gstreamer1.0-libav libgstrtspserver-1.0-dev
   - sudo apt-get intall gstreamer-editing-services1.0
 script:
   - cargo build --verbose
