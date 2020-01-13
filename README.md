@@ -2,6 +2,8 @@
 
 DonBot is a toolkit with a variety of features, all geared towards automatically generating entertaining content.
 
+[![Build Status](https://travis-ci.com/Mimerme/donbot.rs.svg?branch=master)](https://travis-ci.com/Mimerme/donbot.rs)
+
 ## Feature List
 
 - [x] Automatically curate and upload highlight reels of Twitch clips to YouTube
