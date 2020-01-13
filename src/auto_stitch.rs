@@ -81,6 +81,11 @@ fn filter_filename(filename_in : &mut String){
 }
 
 #[test]
+pub fn clean_auto_stitch(){
+
+}
+
+#[test]
 pub fn test_stitching(){
     let cfg = Ini::load_from_file("config.ini").unwrap();
     let auto_stitcher = cfg.section(Some("auto_stitch")).unwrap();
