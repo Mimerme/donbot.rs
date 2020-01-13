@@ -26,6 +26,8 @@ pub fn main() {
     let DOWNLOAD_DIR : &str = auto_stitcher.get("DOWNLOAD_DIR").unwrap(); 
     let OUTPUT_FILE : &str = cfg.section(Some("gstreamer")).unwrap().get("OUTPUT_FILE").unwrap();
 
+    println!("Output file: {}", OUTPUT_FILE);
+
 
     //Some prints to make sure the values were read properly
     println!("Getting Twitch clips from '{}'", GAME_ID);
