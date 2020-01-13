@@ -11,7 +11,7 @@ use std::fs;
 use std::path::Path;
 use ini::Ini;
 use don_bot::twitch_core::{download_clip, get_helix_top_clips, Twitch_Clip};
-use don_bot::gstreamer::{run_pipeline, stitch_videos_pipeline};
+use don_bot::gstreamer::{stitch_videos};
 use don_bot::youtube_core::{upload_video};
 use std::time::{SystemTime, UNIX_EPOCH};
 use chrono::{Date, Utc, NaiveDate, DateTime, Datelike};
@@ -25,9 +25,6 @@ pub fn main() {
     let GAME_ID : &str = auto_stitcher.get("GAME_ID").unwrap();
     let DOWNLOAD_DIR : &str = auto_stitcher.get("DOWNLOAD_DIR").unwrap(); 
     let OUTPUT_FILE : &str = cfg.section(Some("gstreamer")).unwrap().get("OUTPUT_FILE").unwrap();
-
-    println!("Output file: {}", OUTPUT_FILE);
-
 
     //Some prints to make sure the values were read properly
     println!("Getting Twitch clips from '{}'", GAME_ID);
@@ -70,10 +67,9 @@ pub fn main() {
         mp4s_to_concat.push(format!("{}{}/{}", DOWNLOAD_DIR, in_ms.to_string(), filename)); 
     }
 
-    println!("Clips finished downloading. Constructing the stitching pipeline...");
-    let concat_pipeline = stitch_videos_pipeline(mp4s_to_concat, &cfg).unwrap();
-    println!("Running the concatnation pipeline...");
-    run_pipeline(concat_pipeline);
+    println!("Clips finished downloading. Running the concatnation pipeline...");
+    let concat_pipeline = stitch_videos(mp4s_to_concat, &cfg).unwrap();
+
     println!("Uploading the video...");
     let res = upload_video(&cfg, &OUTPUT_FILE.to_string(), "", None).unwrap(); 
     println!("Response: {:?}", res);
@@ -95,9 +91,19 @@ pub fn test_stitching(){
     let mp4s_to_concat = files_within_dir(Path::new("/home/mimerme/projects/donbot.rs/downloads/1578101953659"));
     println!("{:?}", mp4s_to_concat);
 
-    let concat_pipeline = stitch_videos_pipeline(mp4s_to_concat, &cfg).unwrap();
-    println!("Running the concatnation pipeline...");
-    run_pipeline(concat_pipeline);
+    let concat_pipeline = stitch_videos(mp4s_to_concat, &cfg).unwrap();
+}
+
+#[test]
+pub fn continue_upload(){
+    let cfg = Ini::load_from_file("config.ini").unwrap();
+    let auto_stitcher = cfg.section(Some("auto_stitch")).unwrap();
+    let GAME_ID : &str = auto_stitcher.get("GAME_ID").unwrap();
+    let DOWNLOAD_DIR : &str = auto_stitcher.get("DOWNLOAD_DIR").unwrap(); 
+    let OUTPUT_FILE : &str = cfg.section(Some("gstreamer")).unwrap().get("OUTPUT_FILE").unwrap();
+
+    let res = upload_video(&cfg, &OUTPUT_FILE.to_string(), "", None).unwrap(); 
+    println!("Response: {:?}", res);
 }
 
 fn files_within_dir(dir : &Path) -> Vec<String> {

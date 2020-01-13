@@ -1,8 +1,5 @@
-extern crate gstreamer as g;
-
+extern crate gstreamer as gst;
 use gstreamer::prelude::*;
-use gstreamer::ErrorMessage;
-use ini::Ini;
 
 extern crate gstreamer_editing_services as ges;
 use ges::prelude::*;
@@ -10,26 +7,31 @@ use ges::prelude::*;
 extern crate gstreamer_pbutils as gst_pbutils;
 use gst_pbutils::prelude::*;
 
-extern crate glib;
+use ini::Ini;
+use std::path::Path;
+use std::error::Error;
+//use crate::don_bot::utils::don_bot_err;
 
-
-pub fn stitch_videos_pipeline(clips : Vec<String>, cfg : &Ini) -> Result<ges::Pipeline, String>{
+// Returns a path to the output file
+pub fn stitch_videos(clips : Vec<String>, cfg : &Ini) -> Result<&Path, &Error>{
     ges::init().unwrap();
 
-    let output_file = cfg.section(Some("gstreamer")).unwrap().get("OUTPUT_FILE").unwrap();
-    let encoding_profile_file = cfg.section(Some("gstreamer")).unwrap().get("ENCODING_TARGET").unwrap();
+    // Load the configuration files
+    let gstreamer_section = cfg.section(Some("gstreamer")).unwrap();
+    let output_file = gstreamer_section.get("OUTPUT_FILE").unwrap();
+    let encoding_profile_file = gstreamer_section.get("ENCODING_TARGET").unwrap();
 
     // Begin by creating a timeline with audio and video tracks
     let timeline = ges::Timeline::new_audio_video();
     // Create a new layer that will contain our timed clips.
     let layer = timeline.append_layer();
+    //Create a pipeline with the timeline
     let pipeline = ges::Pipeline::new();
     pipeline.set_timeline(&timeline).unwrap();
 
-    let mut current_time = g::ClockTime::from_seconds(0);
+    let mut current_time = gst::ClockTime::from_seconds(0);
     for clip in clips {
-        println!("file://{}", clip);
-        let clip = ges::UriClip::new(&format!("file://{}", clip)).unwrap();
+       let clip = ges::UriClip::new(&format!("file://{}", clip)).unwrap();
 
         // Retrieve the asset that was automatically used behind the scenes, to
        // extract the clip from.
@@ -43,25 +45,27 @@ pub fn stitch_videos_pipeline(clips : Vec<String>, cfg : &Ini) -> Result<ges::Pi
        // how much we play from that point onwards. Setting the inpoint to something else
        // than 0, or the duration something smaller than the clip's actual duration will
        // cut the clip.
-       clip.set_inpoint(g::ClockTime::from_seconds(0));
+       clip.set_inpoint(gst::ClockTime::from_seconds(0));
        clip.set_start(current_time);
        clip.set_duration(duration);
        current_time = current_time + duration; 
        layer.add_clip(&clip).unwrap();
     }
 
-    let empty_cap = g::Caps::new_empty();
+    //Load the settings for encoding the final render
     let profiles = gst_pbutils::EncodingTarget::load_from_file(&encoding_profile_file).unwrap().get_profiles();
 
     println!("Reading Encoding Target From: {}", &encoding_profile_file);
     pipeline.set_render_settings(&format!("file://{}", output_file), &profiles[0]);
-    pipeline.set_mode(ges::PipelineFlags::RENDER);
 
-    Ok(pipeline)
+    //Begin the render proccess
+    pipeline.set_mode(ges::PipelineFlags::RENDER);
+    run_pipeline(pipeline).unwrap();
+
+    return Ok(&Path::new(output_file));
 }
 
-
-pub fn run_pipeline(pipeline : ges::Pipeline) -> Result<(), String> {
+fn run_pipeline(pipeline : ges::Pipeline) -> Result<(), String> {
     // Below is code to look over the pipeline bus.
     // Looks leik its mainly for debugging purposes but idk I just ripped it from here:
     // https://github.com/sdroege/gstreamer-rs/blob/be3c378f289683e8c0e7b7cfaff5dc74972bb074/examples/src/bin/playbin.rs    
@@ -78,8 +82,6 @@ pub fn run_pipeline(pipeline : ges::Pipeline) -> Result<(), String> {
 
     for msg in bus.iter_timed(gstreamer::CLOCK_TIME_NONE) {
         use gstreamer::MessageView;
-
-        //println!("Message: {:?}", msg.view());
 
         match msg.view() {
 
@@ -131,7 +133,7 @@ pub fn run_pipeline(pipeline : ges::Pipeline) -> Result<(), String> {
 
 pub fn generate_encoding_profile(source_uri : &str, output_file : &str){
     ges::init().unwrap();
-    let discovered_file = gst_pbutils::Discoverer::new(g::ClockTime::from_seconds(2)).unwrap().discover_uri(&format!("file://{}", source_uri)).unwrap();
+    let discovered_file = gst_pbutils::Discoverer::new(gst::ClockTime::from_seconds(2)).unwrap().discover_uri(&format!("file://{}", source_uri)).unwrap();
     let profile : gst_pbutils::EncodingProfile  = gst_pbutils::EncodingProfile::from_discoverer(&discovered_file).unwrap();
 
     let encoding_target = gst_pbutils::EncodingTarget::new("donbot-encoding-target", "donbot", "", &[profile]);

@@ -41,7 +41,6 @@ pub mod gst;
 
 /// Runs a specified pipeline
 /// * 'pipeline' - The pipeline to run. NOTE: Its ownership is consumed
-pub use gst::run_pipeline;
 
 /// Creates a bunch of filesrc elements and returns them
 /// * '&pipeline' - Reference of pipeline to add elements to
@@ -51,7 +50,7 @@ pub use gst::run_pipeline;
 /// Insert a concat element into the pipeline
 /// * '&pipeline' - Reference of pipeline to add elements to
 /// * 'filesrcs' - Vec<gstreamer::Element> of filesrc elements to concat
-pub use gst::stitch_videos_pipeline;
+pub use gst::stitch_videos;
 pub use gst::generate_encoding_profile;
 
 /// Outputs a video by attatching a filesink element
