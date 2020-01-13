@@ -65,3 +65,8 @@ path = "src/chat_note.rs"
 [[bin]]
 name = "gen_enc"
 path = "src/gen_encoding.rs"
+
+# Mainly a test binary. Remove a eventually
+[[bin]]
+name = "upload_output"
+path = "src/upload_output.rs"
