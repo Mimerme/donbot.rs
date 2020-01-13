@@ -68,7 +68,9 @@ pub fn main() {
     let concat_pipeline = stitch_videos(mp4s_to_concat, &cfg).unwrap();
 
     println!("Uploading the video...");
-    let res = upload_video(&cfg, &OUTPUT_FILE.to_string(), "", None).unwrap(); 
+    let res = upload_video(&cfg, &OUTPUT_FILE.to_string(), 
+                           Some(format!("Daily Dota 2 Twitch Highlights : {}", current_date.format("%Y-%m-%d").to_string()).to_string()), 
+                           Some("This is an automatically generated video by DonBot.".to_string())).unwrap(); 
     println!("Response: {:?}", res);
 }
 
@@ -89,18 +91,6 @@ pub fn test_stitching(){
     println!("{:?}", mp4s_to_concat);
 
     let concat_pipeline = stitch_videos(mp4s_to_concat, &cfg).unwrap();
-}
-
-#[test]
-pub fn continue_upload(){
-    let cfg = Ini::load_from_file("config.ini").unwrap();
-    let auto_stitcher = cfg.section(Some("auto_stitch")).unwrap();
-    let GAME_ID : &str = auto_stitcher.get("GAME_ID").unwrap();
-    let DOWNLOAD_DIR : &str = auto_stitcher.get("DOWNLOAD_DIR").unwrap(); 
-    let OUTPUT_FILE : &str = cfg.section(Some("gstreamer")).unwrap().get("OUTPUT_FILE").unwrap();
-
-    let res = upload_video(&cfg, &OUTPUT_FILE.to_string(), "", None).unwrap(); 
-    println!("Response: {:?}", res);
 }
 
 fn files_within_dir(dir : &Path) -> Vec<String> {

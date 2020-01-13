@@ -17,7 +17,9 @@ pub fn main(){
     let DOWNLOAD_DIR : &str = auto_stitcher.get("DOWNLOAD_DIR").unwrap(); 
     let OUTPUT_FILE : &str = cfg.section(Some("gstreamer")).unwrap().get("OUTPUT_FILE").unwrap();
 
-    let res = upload_video(&cfg, &OUTPUT_FILE.to_string(), "", None).unwrap(); 
+   let res = upload_video(&cfg, &OUTPUT_FILE.to_string(), 
+                           Some("Daily Dota 2 Twitch Highlights".to_string()), 
+                           Some("This is an automatically generated video by DonBot.".to_string())).unwrap(); 
     println!("Response: {:?}", res);
 }
 

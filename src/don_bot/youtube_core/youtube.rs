@@ -7,7 +7,7 @@ use std::{fs, result};
 use ini::Ini;
 use oauth2::{Authenticator, DefaultAuthenticatorDelegate, ApplicationSecret, DiskTokenStorage, FlowType, GetToken, Token};
 use youtube3::{Result as YResult, Error};
-use youtube3::{YouTube, Video};
+use youtube3::{YouTube, Video, VideoSnippet};
 use hyper::client::response::Response;
 
 
@@ -36,7 +36,7 @@ fn gen_application_secret(cfg : &Ini) -> ApplicationSecret {
     return secret;
 }
 
-pub fn upload_video(cfg : &Ini, video_path : &str, name : &str, description : Option<&str>) -> YResult<(Response, Video)> {
+pub fn upload_video(cfg : &Ini, video_path : &str, name : Option<String>, description : Option<String>) -> YResult<(Response, Video)> {
     println!("Starting video upload");
 
     let secret = gen_application_secret(cfg);
@@ -52,7 +52,15 @@ pub fn upload_video(cfg : &Ini, video_path : &str, name : &str, description : Op
     let mut hub = YouTube::new(hyper::Client::with_connector(hyper::net::HttpsConnector::new(hyper_rustls::TlsClient::new())), auth);
     //println!("Hub created");
 
-    let res = hub.videos().insert(Video::default())
+    let res = hub.videos().insert(
+                Video {
+                    snippet: Some(VideoSnippet {
+                        title: name,
+                        description: description,
+                        ..VideoSnippet::default()
+                    }),
+                    ..Video::default()
+                })
                  .part("id")
                  .upload_resumable(fs::File::open(video_path).unwrap(), "video/mp4".parse().unwrap());
 
