@@ -33,5 +33,11 @@ __Sidenote on configuration__ : DonBot will always use ```config.ini```  to fetc
 
 - ```gen_enc``` : generates a GStreamer encoding profile based on a source file
 
+## Build Structure
+This repository uses Travis to build and test release binaries. If you're looking to build this project on your location machine look at the ```.travis.yml``` file to see
+what you need to install. (Note: cargo won't be able to manage all of the depepdencies DonBot needs like GStreamer, so you'll need to install those yourself). 
+
+There are two types of tests in DonBot: normal cargo tests and limited tests (specified by the conditional compilation macro ```#[cfg(bar = "limit_test")]```). Limited tests are not run by Travis and involve consuming API quotas, having certain uneccesary files available, etc. Examples of this are tests that upload a Youtube video or concat local video files.
+
 ## Notes:
 Hello person who is reading this that isn't me. I'm surprised that you decided the check out this project cause there isn't really anything to show yet, but its coming along! I'm activly working on this, but the development is pretty informal because of the loose project specification that I gave it. So I'm bouncing from feature to feature, not fully commiting to anything much because of school and applying to jobs and stuff, but it'll get done. Eventually (1/12/2020)
