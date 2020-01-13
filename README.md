@@ -7,7 +7,7 @@ DonBot is a toolkit with a variety of features, all geared towards automatically
 ## Feature List
 
 - [x] Automatically curate and upload highlight reels of Twitch clips to YouTube
-- [ ] Bind a key to generate a clip from a stream
+- [ ] Bind a key to generate a clip from a stream and optionally download it
 - [ ] Automatically generate clips from a stream based on chat messages
 - [x] Play a sound on a local machine whenever a chat messages
 
@@ -32,6 +32,8 @@ __Sidenote on configuration__ : DonBot will always use ```config.ini```  to fetc
 - ```config_oauth``` : create a Youtube OAuth token
 
 - ```updater``` : setups up a GitHub webhook that automatically rebuilds the latest DonBot targets
+
+- ```update_bins``` : setups up a GitHub webhook that automatically downloads newly built binaries from Travis
 
 - ```gen_enc``` : generates a GStreamer encoding profile based on a source file
 
