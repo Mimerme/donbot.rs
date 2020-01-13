@@ -33,7 +33,7 @@ __Sidenote on configuration__ : DonBot will always use ```config.ini```  to fetc
 
 - ```updater``` : setups up a GitHub webhook that automatically rebuilds the latest DonBot targets
 
-- ```update_bins``` : setups up a GitHub webhook that automatically downloads newly built binaries from Travis
+- TODO: ```update_bins``` : setups up a GitHub webhook that automatically downloads newly built binaries from Travis
 
 - ```gen_enc``` : generates a GStreamer encoding profile based on a source file
 
