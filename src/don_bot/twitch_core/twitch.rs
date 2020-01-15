@@ -4,6 +4,7 @@ use serde::{Deserialize};
 use std::fs::{File, write};
 use chrono::{DateTime, Utc};
 use crate::don_bot::utils::{filter_filename};
+use futures::prelude::*;
 
 const HELIX_ENDPOINT : &str = "https://api.twitch.tv/helix/{}";
 const V5_ENDPOINT : &str= "https://api.twitch.tv/kraken/{}";
@@ -41,15 +42,17 @@ impl TwitchClient {
     }
 
     // Downloads multiple clips asyncronysoly (blah)
-    pub fn download_clips(&self, url : &str, download_dir : &str, filenames : Vec<String>) -> Result<(), reqwest::Error> {
-       let futures : Vec<Future> = Vec::new();
+    pub fn download_clips(&self, urls : Vec<String>, download_dir : &str) -> Result<(), reqwest::Error> {
+       //let futures : Vec<Future> = Vec::new();
 
        //create the 'downloads' directory if it doesn't exist
        std::fs::create_dir_all(download_dir);
 
-       for filename in filenames {
+       for url in urls {
     	    // Make the network request and setup the callbacks
-            let future = self.client.get(url).send().then(|res| {
+            let future = self.client.get(url).send().then(|res| async {
+
+               //Format the path name and write the bytes
                let mut fname = filename.to_string();
           	   filter_filename(&mut fname);
                let path = format!("{}{}{}", download_dir, "/", &fname);
