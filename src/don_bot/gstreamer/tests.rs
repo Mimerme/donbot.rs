@@ -19,3 +19,14 @@ fn test_concat_clips(){
 
 #[test]
 fn test_benchmark(){}
+
+
+// Downloads. Depends on twitch_core for downloading videos
+fn prepare_test_env(){
+    use crate::don_bot::twitch_core::{download_clip};
+
+    let const test_videos = vec!["http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                                 "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                                 "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"];
+
+}

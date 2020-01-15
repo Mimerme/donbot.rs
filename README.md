@@ -20,7 +20,7 @@ A general rule of thumb for drivers is that they should contain enviornment depe
 
 All other DonBot related code should be stored under subdirectores ```/src/don_bot/*/```. I call them __modules__
 
-Code that that does is not DonBot specific is stored under ```/src/utils/```. This includes additional things that beatify the output, filter characters from filenames, etc.
+Code that that is not specifically written for DonBot (aka Code that can be easily reused)is stored under ```/src/utils.rs```. This includes additional things that beatify the output, filter characters from filenames, etc.
 
 __Sidenote on configuration__ : DonBot will always use ```config.ini```  to fetch configuration values. Modules and drivers should only access their own configurations specified by the section names. Code in ```/src/utils/``` should not read or write to it. 
 
