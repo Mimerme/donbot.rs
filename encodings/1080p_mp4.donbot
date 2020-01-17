@@ -3,22 +3,24 @@ name=donbot-encoding-target
 category=donbot
 description=
 
-[profile-auto-generated]
-name=auto-generated
+[profile-container]
+name=container
 type=container
 description[c]=Automatically generated from GstDiscovererInfo
 format=video/quicktime, variant=(string)iso
 
-[streamprofile-auto-generated-0]
-parent=auto-generated
+[streamprofile-container-0]
+name=audio
+parent=container
 type=audio
 format=audio/mpeg, mpegversion=(int)4, level=(string)2, base-profile=(string)lc, profile=(string)lc, rate=(int)44100, channels=(int)2
 presence=0
 
-[streamprofile-auto-generated-1]
-parent=auto-generated
+[streamprofile-container-1]
+name=video
+parent=container
 type=video
-format=video/x-h264, level=(string)5, height=(int)1080, width=(int)1920, profile=(string)high, framerate=(fraction)60/1, pixel-aspect-ratio=(fraction)1/1
+format=video/x-h264, width=(int)1920, height=(int)1080, level=(string)5, profile=(string)high, framerate=(fraction)60/1, pixel-aspect-ratio=(fraction)2/2
 presence=0
 pass=0
 variableframerate=false
