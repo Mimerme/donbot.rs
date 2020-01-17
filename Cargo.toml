@@ -28,6 +28,7 @@ git2 = "0.11.0"
 gstreamer = "0.15.0" 
 gstreamer-editing-services = "0.15.0"
 gstreamer-pbutils = "0.15.0"
+gstreamer-editing-services-sys = "0.8.1"
  
 # Youtube Core
 glib = "0.9.0"

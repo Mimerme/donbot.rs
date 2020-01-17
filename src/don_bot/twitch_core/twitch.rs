@@ -5,6 +5,8 @@ use std::fs::{File, write};
 use chrono::{DateTime, Utc};
 use crate::don_bot::utils::{filter_filename};
 use futures::prelude::*;
+use futures::executor::block_on;
+use crate::don_bot::error::{DonBotResult, DBError};
 
 const HELIX_ENDPOINT : &str = "https://api.twitch.tv/helix/{}";
 const V5_ENDPOINT : &str= "https://api.twitch.tv/kraken/{}";
@@ -41,8 +43,9 @@ impl TwitchClient {
         TwitchClient { client : reqwest::Client::new()}
     }
 
+    /*
     // Downloads multiple clips asyncronysoly (blah)
-    pub fn download_clips(&self, urls : Vec<String>, download_dir : &str) -> Result<(), reqwest::Error> {
+    pub fn download_clips(&self, urls : Vec<String>, download_dir : &str) -> DonBotResult<()> {
        //let futures : Vec<Future> = Vec::new();
 
        //create the 'downloads' directory if it doesn't exist
@@ -50,14 +53,14 @@ impl TwitchClient {
 
        for url in urls {
     	    // Make the network request and setup the callbacks
-            let future = self.client.get(url).send().then(|res| async {
+            let future = self.client.get(&url).send().then(|res| async {
 
                //Format the path name and write the bytes
-               let mut fname = filename.to_string();
+               let mut fname = url.to_string();
           	   filter_filename(&mut fname);
                let path = format!("{}{}{}", download_dir, "/", &fname);
 
-               write(path, res.unwrap().bytes().unwrap());
+               write(path, res.unwrap().bytes().await.unwrap());
             });
         }
         Ok(())
@@ -65,7 +68,7 @@ impl TwitchClient {
  
 
     // Downloads a single clip and blocks the thread
-    pub fn download_clip(&self, url : &str, download_dir : &str, filename : &str) -> Result<(), reqwest::Error> {
+    pub fn download_clip(&self, url : &str, download_dir : &str, filename : &str) -> DonBotResult<()> {
     	// Make the network request and unwrap the response
     	let mut res = block_on(self.client.get(url).send())?;
     
@@ -76,7 +79,7 @@ impl TwitchClient {
     	filter_filename(&mut fname);
         let path = format!("{}{}{}", download_dir, "/", &fname);
 
-        let bytes = res.bytes().await?;
+        let bytes = block_on(res.bytes()).ok_or(DBError::new("problem reading bytes"));;
         
         // Copy the contents from the response into the destination
         write(path, bytes);
@@ -85,15 +88,15 @@ impl TwitchClient {
     }
     
     //TODO: Proper error handling
-    pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> Result<Vec<Twitch_Clip>, String> {
+    pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> DonBotResult<Vec<Twitch_Clip>> {
         println!("Start time: {}", start_time.to_rfc3339());
         println!("End time: {}", end_time.to_rfc3339());
-        let res = client.get("https://api.twitch.tv/helix/clips")
+        let res = block_on(client.get("https://api.twitch.tv/helix/clips")
         				.query(&[("game_id", game_id),
                                  ("started_at", start_time.to_rfc3339()),
                                  ("ended_at", end_time.to_rfc3339())])
         				.header("Client-ID", CLIENT_ID)
-                        .send().unwrap();
+                        .send())?;
     
     
         let status = res.status().is_success();
@@ -103,8 +106,7 @@ impl TwitchClient {
     
     
         //NOTE: .body() consumes the owernship of the response
-        let body = res.text().unwrap();
-      	//println!("Body: \n\n{}", body);
+        let body = res.text()?;
     
       	/* Structs for Helix specific JSON desrialization. */ 
       	/* Prefer fixed size stuff cuz Rust                */
@@ -130,6 +132,6 @@ impl TwitchClient {
       	}
     
         return Ok(json.data);
-    }
+    }*/
 }
 
