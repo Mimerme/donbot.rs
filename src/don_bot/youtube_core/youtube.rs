@@ -60,8 +60,6 @@ pub fn upload_video(cfg : &Ini, video_path : &str, name : Option<String>, descri
                     }),
                     ..Video::default()
                 })
-                 .part("snippet")
-                 .part("id")
                  //TODO: maybe switch this to upload_resuamble an actually implement resuming
                  //uploads
                  .upload(fs::File::open(video_path).unwrap(), "video/mp4".parse().unwrap());
