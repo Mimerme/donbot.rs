@@ -16,6 +16,7 @@ hyper = "^0.10"
 hyper-rustls = "^0.6"
 rust-ini = "0.13.0"
 chrono = "0.4.10"
+futures = "0.3.1"
 
 # Automatic Updates
 rocket = "0.4.2"
@@ -27,6 +28,7 @@ git2 = "0.11.0"
 gstreamer = "0.15.0" 
 gstreamer-editing-services = "0.15.0"
 gstreamer-pbutils = "0.15.0"
+gstreamer-editing-services-sys = "0.8.1"
  
 # Youtube Core
 glib = "0.9.0"

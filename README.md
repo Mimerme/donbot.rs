@@ -7,7 +7,7 @@ DonBot is a toolkit with a variety of features, all geared towards automatically
 ## Feature List
 
 - [x] Automatically curate and upload highlight reels of Twitch clips to YouTube
-- [ ] Bind a key to generate a clip from a stream
+- [ ] Bind a key to generate a clip from a stream and optionally download it
 - [ ] Automatically generate clips from a stream based on chat messages
 - [x] Play a sound on a local machine whenever a chat messages
 
@@ -20,7 +20,7 @@ A general rule of thumb for drivers is that they should contain enviornment depe
 
 All other DonBot related code should be stored under subdirectores ```/src/don_bot/*/```. I call them __modules__
 
-Code that that does is not DonBot specific is stored under ```/src/utils/```. This includes additional things that beatify the output, filter characters from filenames, etc.
+Code that that is not specifically written for DonBot (aka Code that can be easily reused)is stored under ```/src/utils.rs```. This includes additional things that beatify the output, filter characters from filenames, etc.
 
 __Sidenote on configuration__ : DonBot will always use ```config.ini```  to fetch configuration values. Modules and drivers should only access their own configurations specified by the section names. Code in ```/src/utils/``` should not read or write to it. 
 
@@ -32,6 +32,8 @@ __Sidenote on configuration__ : DonBot will always use ```config.ini```  to fetc
 - ```config_oauth``` : create a Youtube OAuth token
 
 - ```updater``` : setups up a GitHub webhook that automatically rebuilds the latest DonBot targets
+
+- TODO: ```update_bins``` : setups up a GitHub webhook that automatically downloads newly built binaries from Travis
 
 - ```gen_enc``` : generates a GStreamer encoding profile based on a source file
 

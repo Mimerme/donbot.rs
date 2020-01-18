@@ -10,7 +10,6 @@ use youtube3::{Result as YResult, Error};
 use youtube3::{YouTube, Video, VideoSnippet};
 use hyper::client::response::Response;
 
-
 const SCOPES : [&str; 1] = ["https://www.googleapis.com/auth/youtube.upload"];
 
 fn gen_application_secret(cfg : &Ini) -> ApplicationSecret {

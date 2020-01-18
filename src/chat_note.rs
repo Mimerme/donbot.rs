@@ -16,7 +16,7 @@ pub fn main(){
             .show();
         let device = rodio::default_output_device().unwrap();
 
-        let file = File::open("sound.mp3").unwrap();
+        let file = File::open("assets/sound.mp3").unwrap();
         let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
         rodio::play_raw(&device, source.convert_samples());
         return ();

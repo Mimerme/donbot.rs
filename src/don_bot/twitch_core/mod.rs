@@ -10,10 +10,12 @@ pub use twitch::Twitch_Clip;
 ///
 /// * 'path' - file path to save the video as. Note: must be mp4
 /// * 'mp4url' - url to the mp4 video file. Found in the source of the webpage
-pub use twitch::download_clip;
+//pub use twitch::download_clip;
 
 /// Returns Vec<Helix_Clip>
-pub use twitch::get_helix_top_clips;
+//pub use twitch::get_helix_top_clips;
+
+pub use twitch::TwitchClient;
 
 #[cfg(test)]
 mod tests;
