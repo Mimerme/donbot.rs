@@ -1,7 +1,8 @@
 echo "Building the targets..."
-cargo build
-rm -rf ./target/output
-mkdir ./target/output
-mv ./target/debug/auto_stitch target/output/auto_stitch
-mv ./target/debug/config_oauth target/output/config_oauth
-mv ./target/debug/chat_note target/output/chat_note
+
+export PKG_CONFIG_ALLOW_CROSS=1
+rustup target add armv7-unknown-linux-gnueabihf
+sudo apt-get install gcc-4.7-multilib-arm-linux-gnueabihf
+cargo build --verbose --release --target=armv7-unknown-linux-gnueabihf --bins --out-dir=./target/release/armv7/
+echo -e "[target.armv7-unknown-linux-gnueabihf]\nlinker = "arm-linux-gnueabihf-gcc-4.7" >> ~/.cargo/config
+tar -zcvf donbot-armv7.tar.gz ./target/release/armv7/

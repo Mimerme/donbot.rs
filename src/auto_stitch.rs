@@ -10,7 +10,7 @@ mod don_bot;
 use std::fs;
 use std::path::Path;
 use ini::Ini;
-use don_bot::twitch_core::{download_clip, get_helix_top_clips, Twitch_Clip};
+use don_bot::twitch_core::TwitchClient;
 use don_bot::gstreamer::{stitch_videos};
 use don_bot::youtube_core::{upload_video};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -37,8 +37,9 @@ pub fn main() {
     //TODO: lol this is wrong
     //let clips = get_helix_top_clips(&client, GAME_ID.to_string(), DateTime::from_utc(
     //        NaiveDate::from_ymd(current_date.year(), current_date.month(), current_date.day() - 1).and_hms(0,0,0), Utc) ,Utc::now()).unwrap();
-    
-    let clips = get_helix_top_clips(&client, GAME_ID.to_string(), current_date - Duration::days(1), current_date).unwrap();
+    let twitch_client = TwitchClient::new(&cfg);
+
+    let clips = twitch_client.get_helix_top_clips(GAME_ID.to_string(), current_date - Duration::days(1), current_date).unwrap();
     //Generate a time stamp to create the folder name with
     let start = SystemTime::now();
     let since_the_epoch = start.duration_since(UNIX_EPOCH)
@@ -58,7 +59,7 @@ pub fn main() {
         println!("Downloading {} to {}/{}", clip.title, filename, in_ms.to_string());
         println!("Source: {}", clip.mp4_url);
 
-    	download_clip(&client, &clip.mp4_url, &format!("{}{}/", DOWNLOAD_DIR, in_ms.to_string()), &filename);
+    	twitch_client.download_clip(&clip.mp4_url, &format!("{}{}/", DOWNLOAD_DIR, in_ms.to_string()), &filename);
         
         // build the list of local files to concat
         mp4s_to_concat.push(format!("{}{}/{}", DOWNLOAD_DIR, in_ms.to_string(), filename)); 
