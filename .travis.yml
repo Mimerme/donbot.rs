@@ -2,14 +2,24 @@ os: linux
 dist: bionic
 language: rust
 rust:
-  - nightly
+- nightly
 cache: cargo
 before_install:
-  - sudo apt-get install libsdl2-dev
-  - sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
-  - sudo apt-get install gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-  - sudo apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
-  - sudo apt-get install gstreamer1.0-libav libgstrtspserver-1.0-dev
-  - sudo apt-get install ges1.0-tools libges-1.0-dev
-script:
-  - cargo build --verbose
+- sudo apt-get install libsdl2-dev
+- sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+- sudo apt-get install gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+- sudo apt-get install gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
+- sudo apt-get install gstreamer1.0-libav libgstrtspserver-1.0-dev
+- sudo apt-get install ges1.0-tools libges-1.0-dev
+- export PKG_CONFIG_ALLOW_CROSS=1
+- sudo apt-get install -qq gcc-arm-linux-gnueabihf
+- rustup target add armv7-unknown-linux-gnueabihf
+- cargo clean
+script: ./build
+deploy:
+  provider: releases
+  api_key:
+    secure: coBc6oKxVknO6kFFQv2+s2E6d+zfFhrz9oCy37PugOqggqqB0XcCyWymOLASw43QW5hH+hYGGa9U8xygQ5s9eje6gARNVEzTLjoL6HW0ZrG5F0CkpKocfbhemxASdgtp3AnHn611L4Q6OkWd1Y37d/IgJoaVyPKNtmZwL2pCJS0ujix0iVm3fYMrrjdxMk2o1YEtqZ9emxpGclhcNbiBkcuEbPw++visno6Kc1CkiZoFTX98BalBJH76B9SkU9Nbq4SBtIZX3133Z0ILZG2kiboq05kTCJe2+ZHK/EMKYWhCjEfsAelpKYQv9p17Jm6JzBt4/8V6IIUaO3BCgECQcgd4WIIg/WuZzGoMG2cX3cIgUETyvVe4+a5DFBN2tOe1PsE+i1DoQXYI7iPKaofkO9ISRUBPvIYU+GiosFeyRNTOYazIjRxrlA+girtjb2FZYJE2P38tuezX9TCk0fMISPwC3ktaAb4lwovn3koinoPmygs4JuqrJBumohU/3xdHkSzi9mV8sivlcy+OI9hivTGv0znv0iHEfeWn1T4bIHi7xUu6xNwIggD2RCTcC9mT86WmEaU21yuqEWBB0pQ5YcO0QWl2EAoh+l2UHCOsQzH81b66MwXQxCxW4GwEre+ELoQ0Rw2ugfJmQtKmlwcqHlnpHnfkgfgx7KE6BN3i1yk=
+  file: donbot-armv7.tar.gz
+  on:
+    tags: true

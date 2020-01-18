@@ -1,2 +1,0 @@
-echo "Checking the latest changes to the code..."
-cargo build --bin auto_stitch

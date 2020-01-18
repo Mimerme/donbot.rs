@@ -7,12 +7,13 @@ use crate::don_bot::utils::{filter_filename};
 use futures::prelude::*;
 use futures::executor::block_on;
 use crate::don_bot::error::{DonBotResult, DBError};
+use ini::Ini;
 
 const HELIX_ENDPOINT : &str = "https://api.twitch.tv/helix/{}";
 const V5_ENDPOINT : &str= "https://api.twitch.tv/kraken/{}";
 const CDN_ENDPOINT : &str = "https://clips-media-assets2.twitch.tv/";
 //TODO: Support loading credentials from file
-const CLIENT_ID : &str = "s0w8u8kr3e0s0mqgnzhyoom0bh7jzc";
+const CLIENT_ID : &str = "";
 
 
 #[derive(Deserialize)]
@@ -39,11 +40,10 @@ pub struct TwitchClient {
 }
 
 impl TwitchClient {
-    pub fn new() -> TwitchClient{
+    pub fn new(cfg : &ini::Ini) -> TwitchClient{
         TwitchClient { client : reqwest::Client::new()}
     }
 
-    /*
     // Downloads multiple clips asyncronysoly (blah)
     pub fn download_clips(&self, urls : Vec<String>, download_dir : &str) -> DonBotResult<()> {
        //let futures : Vec<Future> = Vec::new();
@@ -79,7 +79,7 @@ impl TwitchClient {
     	filter_filename(&mut fname);
         let path = format!("{}{}{}", download_dir, "/", &fname);
 
-        let bytes = block_on(res.bytes()).ok_or(DBError::new("problem reading bytes"));;
+        let bytes = block_on(res.bytes())?;
         
         // Copy the contents from the response into the destination
         write(path, bytes);
@@ -88,10 +88,10 @@ impl TwitchClient {
     }
     
     //TODO: Proper error handling
-    pub fn get_helix_top_clips(client : &reqwest::blocking::Client, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> DonBotResult<Vec<Twitch_Clip>> {
+    pub fn get_helix_top_clips(&self, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> DonBotResult<Vec<Twitch_Clip>> {
         println!("Start time: {}", start_time.to_rfc3339());
         println!("End time: {}", end_time.to_rfc3339());
-        let res = block_on(client.get("https://api.twitch.tv/helix/clips")
+        let res = block_on(self.client.get("https://api.twitch.tv/helix/clips")
         				.query(&[("game_id", game_id),
                                  ("started_at", start_time.to_rfc3339()),
                                  ("ended_at", end_time.to_rfc3339())])
@@ -101,12 +101,12 @@ impl TwitchClient {
     
         let status = res.status().is_success();
         if status != true {
-        	return Err("Oof".to_string());
+        	return Err(Box::new(DBError::new(&"Oof".to_string())));
         }
     
     
         //NOTE: .body() consumes the owernship of the response
-        let body = res.text()?;
+        let body = block_on(res.text())?;
     
       	/* Structs for Helix specific JSON desrialization. */ 
       	/* Prefer fixed size stuff cuz Rust                */
@@ -132,6 +132,6 @@ impl TwitchClient {
       	}
     
         return Ok(json.data);
-    }*/
+    }
 }
 
