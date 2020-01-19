@@ -12,6 +12,7 @@ use std::process::{Child, Command};
 // For making it all thread safe
 use std::sync::Mutex;
 
+static mut POST_BUILD: Option<Child> = None;
 //Automatically updates and schedules the auto_stitcher binary
 #[derive(Deserialize, Debug)]
 pub struct PushPayload {
@@ -130,15 +131,18 @@ fn rebuild_auto_stitcher(path : &str, remote : &str, branch : &str, post_build :
         post_build_command.arg(args[x]);
     }
 
-    let mut post_build_proc = post_build_command.spawn().unwrap();
+    unsafe {
+        POST_BUILD = Some(post_build_command.spawn().unwrap());
+        let post_build_proc : &mut Child = POST_BUILD.as_mut().unwrap();
 
-    match post_build_proc.try_wait() {
-        Ok(Some(status)) => println!("exited with: {}", status),
-        Ok(None) => {
-            let res = post_build_proc.wait();
-            println!("result: {:?}", res);
+        match post_build_proc.try_wait() {
+            Ok(Some(status)) => println!("exited with: {}", status),
+            Ok(None) => {
+                let res = post_build_proc.wait();
+                println!("result: {:?}", res);
+            }
+            Err(e) => println!("error attempting to wait: {}", e)
         }
-        Err(e) => println!("error attempting to wait: {}", e)
     }
 }
 
@@ -151,4 +155,5 @@ fn not_found() -> String {
 fn main(){
     println!("Starting GitHub Webhook Server...");
     rocket::ignite().mount("/", routes![ping, on_push]).launch();
+    //POST_BUILD.drop();
 }
