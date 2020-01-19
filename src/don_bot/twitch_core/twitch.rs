@@ -8,12 +8,13 @@ use futures::prelude::*;
 use futures::executor::block_on;
 use crate::don_bot::error::{DonBotResult, DBError};
 use ini::Ini;
+use std::io::{Read, copy};
 
 const HELIX_ENDPOINT : &str = "https://api.twitch.tv/helix/{}";
 const V5_ENDPOINT : &str= "https://api.twitch.tv/kraken/{}";
 const CDN_ENDPOINT : &str = "https://clips-media-assets2.twitch.tv/";
 //TODO: Support loading credentials from file
-const CLIENT_ID : &str = "";
+const CLIENT_ID : &str = "s0w8u8kr3e0s0mqgnzhyoom0bh7jzc";
 
 
 #[derive(Deserialize)]
@@ -36,16 +37,21 @@ pub struct Twitch_Clip {
 }
 
 pub struct TwitchClient {
-    client : reqwest::Client
+    client : reqwest::blocking::Client
 }
 
 impl TwitchClient {
     pub fn new(cfg : &ini::Ini) -> TwitchClient{
-        TwitchClient { client : reqwest::Client::new()}
+        TwitchClient { client : reqwest::blocking::Client::new()}
     }
 
+    // has_delay specifies whether or not to account for the broadcaster viewer delay
+    // it should be true when the viewer creates the clip and should be false when the streamer
+    // creates the clip
+    //pub fn create_clip(&self, Stream, broadcaster_id : String, has_delay : bool)
+
     // Downloads multiple clips asyncronysoly (blah)
-    pub fn download_clips(&self, urls : Vec<String>, download_dir : &str) -> DonBotResult<()> {
+    /*pub fn download_clips(&self, urls : Vec<String>, download_dir : &str) -> DonBotResult<()> {
        //let futures : Vec<Future> = Vec::new();
 
        //create the 'downloads' directory if it doesn't exist
@@ -64,25 +70,28 @@ impl TwitchClient {
             });
         }
         Ok(())
-    }
+    }*/
  
 
     // Downloads a single clip and blocks the thread
     pub fn download_clip(&self, url : &str, download_dir : &str, filename : &str) -> DonBotResult<()> {
     	// Make the network request and unwrap the response
-    	let mut res = block_on(self.client.get(url).send())?;
+    	let mut res = self.client.get(url).send()?;
     
         //create the 'downloads' directory if it doesn't exist
         std::fs::create_dir_all(download_dir);
 
-        let mut fname = filename.to_string();
-    	filter_filename(&mut fname);
-        let path = format!("{}{}{}", download_dir, "/", &fname);
+	    let mut dest : File = {
+	    	//println!("file to download: '{}'", fname);
+	    	let mut fname = filename.to_string();
+	    	filter_filename(&mut fname);
+            let path = format!("{}{}{}", download_dir, "/", &fname);
+            //println!("will be located under: '{:?}'", path);
+            File::create(&path).unwrap()
+        };
 
-        let bytes = block_on(res.bytes())?;
-        
         // Copy the contents from the response into the destination
-        write(path, bytes);
+        copy(&mut res, &mut dest);
     
         Ok(())
     }
@@ -91,22 +100,22 @@ impl TwitchClient {
     pub fn get_helix_top_clips(&self, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> DonBotResult<Vec<Twitch_Clip>> {
         println!("Start time: {}", start_time.to_rfc3339());
         println!("End time: {}", end_time.to_rfc3339());
-        let res = block_on(self.client.get("https://api.twitch.tv/helix/clips")
+        let res = self.client.get("https://api.twitch.tv/helix/clips")
         				.query(&[("game_id", game_id),
                                  ("started_at", start_time.to_rfc3339()),
                                  ("ended_at", end_time.to_rfc3339())])
         				.header("Client-ID", CLIENT_ID)
-                        .send())?;
+                        .send()?;
     
     
         let status = res.status().is_success();
-        if status != true {
-        	return Err(Box::new(DBError::new(&"Oof".to_string())));
-        }
-    
+   
     
         //NOTE: .body() consumes the owernship of the response
-        let body = block_on(res.text())?;
+        let body = res.text()?;
+        if status != true {
+        	return Err(Box::new(DBError::new(&body)));
+        }
     
       	/* Structs for Helix specific JSON desrialization. */ 
       	/* Prefer fixed size stuff cuz Rust                */

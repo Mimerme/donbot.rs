@@ -5,7 +5,7 @@ fn test_generate_overlay(){}
 
 #[test]
 fn test_concat_clips(){
-    use super::*;
+/*    use super::*;
 
     let cfg = Ini::load_from_file("config.ini").unwrap();
     let pipeline = stitch_videos(vec!["/home/mimerme/projects/donbot.rs/downloads/1578101953659/AverageSillyOwlFloof.mp4".to_string(),
@@ -13,7 +13,7 @@ fn test_concat_clips(){
    
     //NOTE: many errors won't arise in the pipeline until we run it
     //run_pipeline(pipeline);
-
+*/
 }
 
 
