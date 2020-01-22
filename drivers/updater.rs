@@ -1,8 +1,6 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
-
-mod don_bot;
 use ini::Ini;
 use serde::{Deserialize};
 use rocket_contrib::json::{Json, JsonValue};

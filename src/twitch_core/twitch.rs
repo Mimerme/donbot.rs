@@ -1,14 +1,20 @@
 //static mut client : Option<reqwest::Client> = None;
 extern crate yup_oauth2 as oauth2;
 
+#[path="../utils.rs"]
+mod utils;
+
+#[path="../error.rs"]
+mod error;
+
 use reqwest;
 use serde::{Deserialize};
 use std::fs::{File, write};
 use chrono::{DateTime, Utc};
-use crate::don_bot::utils::{filter_filename};
+use utils::{filter_filename};
 use futures::prelude::*;
 use futures::executor::block_on;
-use crate::don_bot::error::{DonBotResult, DBError};
+use error::{DonBotResult, DBError};
 use ini::Ini;
 use std::io::{Read, copy};
 use oauth2::{Authenticator, DefaultAuthenticatorDelegate, ApplicationSecret, DiskTokenStorage, FlowType, GetToken, Token};
@@ -190,7 +196,7 @@ impl TwitchClient<'_>{
     //TODO: restructure to return the full struct
     pub fn get_user_id(&self, login : String) -> DonBotResult<String> {
          let res = self.client.get("https://api.twitch.tv/helix/users")
-        				.query(&[("login", game_id)])
+        				.query(&[("login", login)])
         				.header("Client-ID", CLIENT_ID)
                         .send()?;
     
@@ -219,8 +225,9 @@ impl TwitchClient<'_>{
     	}
     
       	let mut json : Helix_Response = serde_json::from_str(&body).unwrap();
-    
-        return Ok(json.data);
+        let id = &json.data[0].id;
+
+        return Ok(id.to_string());
        
     }
 

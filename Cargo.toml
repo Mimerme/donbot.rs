@@ -1,5 +1,5 @@
 [package]
-name = "DonBot"
+name = "don_bot"
 version = "0.1.0-indev"
 authors = ["Andros Yang <androssdragonq.9@gmail.com>"]
 edition = "2018"
@@ -50,29 +50,29 @@ inputbot = "0.4.0"
 # Also faster than check cuz check goes through all the dependencies
 [[bin]]
 name = "test"
-path = "src/test.rs"
+path = "drivers/test.rs"
 
 [[bin]]
 name = "config_oauth"
-path = "src/drivers/config_oauth.rs"
+path = "drivers/config_oauth.rs"
 
 [[bin]]
 name = "auto_stitch"
-path = "src/drivers/auto_stitch.rs"
+path = "drivers/auto_stitch.rs"
 
 [[bin]]
 name = "updater"
-path = "src/drivers/updater.rs"
+path = "drivers/updater.rs"
 
 [[bin]]
 name = "chat_note"
-path = "src/drivers/chat_note.rs"
+path = "drivers/chat_note.rs"
 
 [[bin]]
 name = "gen_enc"
-path = "src/drivers/gen_encoding.rs"
+path = "drivers/gen_encoding.rs"
 
 # Mainly a test binary. Remove a eventually
 [[bin]]
 name = "upload_output"
-path = "src/drivers/upload_output.rs"
+path = "drivers/upload_output.rs"

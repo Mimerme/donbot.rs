@@ -1,5 +1,3 @@
-mod don_bot;
-
 //Currently working on:
 //Getting the auto stitcher up and running
 //  - idea is to just run a single binary and it'll download, combine, and upload the video

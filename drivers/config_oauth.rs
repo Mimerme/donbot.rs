@@ -1,5 +1,3 @@
-mod don_bot;
-
 use ini::Ini;
 use don_bot::youtube_core;
 use don_bot::twitch_core::TwitchClient;
