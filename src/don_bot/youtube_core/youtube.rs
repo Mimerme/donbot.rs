@@ -14,21 +14,21 @@ const SCOPES : [&str; 1] = ["https://www.googleapis.com/auth/youtube.upload"];
 const TOKEN_FILE : &str = ".oauth-token-youtube";
 
 pub struct YoutubeClient {
-    hub : YouTube
+    hub : YouTube<hyper::Client, oauth2::Authenticator<DefaultAuthenticatorDelegate, DiskTokenStorage,  hyper::Client>>
 }
 
 impl YoutubeClient {
-    pub fn new(cfg : &Ini::ini) -> YoutubeClient {
+    pub fn new(cfg : &Ini) -> YoutubeClient {
         let secret = gen_application_secret(cfg);
     
         //Store our oauth token as '.oauth-token' in the working directory
-        let oauthtoken = DiskTokenStorage::new(TOKEN_FILE.to_string()).unwrap();
+        let oauthtoken = DiskTokenStorage::new(&TOKEN_FILE.to_string()).unwrap();
 
         let auth = Authenticator::new(&secret, DefaultAuthenticatorDelegate, 
                                   hyper::Client::with_connector(hyper::net::HttpsConnector::new(hyper_rustls::TlsClient::new())),
                                   oauthtoken, Some(FlowType::InstalledInteractive));
 
-        YouTube {hub: YouTube::new(hyper::Client::with_connector(hyper::net::HttpsConnector::new(hyper_rustls::TlsClient::new())), auth)}
+        YoutubeClient {hub: YouTube::new(hyper::Client::with_connector(hyper::net::HttpsConnector::new(hyper_rustls::TlsClient::new())), auth)}
     }
 
 }
@@ -61,7 +61,7 @@ pub fn upload_video(cfg : &Ini, video_path : &str, name : Option<String>, descri
     let secret = gen_application_secret(cfg);
 
     //Store our oauth token as '.oauth-token' in the working directory
-    let oauthtoken = DiskTokenStorage::new(TOKEN_FILE.to_string()).unwrap();
+    let oauthtoken = DiskTokenStorage::new(&TOKEN_FILE.to_string()).unwrap();
 
     let auth = Authenticator::new(&secret, DefaultAuthenticatorDelegate, 
                                   hyper::Client::with_connector(hyper::net::HttpsConnector::new(hyper_rustls::TlsClient::new())),

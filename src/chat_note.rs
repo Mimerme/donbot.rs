@@ -18,7 +18,6 @@ pub fn main(){
 
         let file = File::open("assets/sound.mp3").unwrap();
         let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
-        rodio::
         rodio::play_raw(&device, source.convert_samples());
         return ();
     }));
