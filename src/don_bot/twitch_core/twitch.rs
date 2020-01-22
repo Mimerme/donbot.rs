@@ -186,7 +186,44 @@ impl TwitchClient<'_>{
     
         Ok(())
     }
+   
+    //TODO: restructure to return the full struct
+    pub fn get_user_id(&self, login : String) -> DonBotResult<String> {
+         let res = self.client.get("https://api.twitch.tv/helix/users")
+        				.query(&[("login", game_id)])
+        				.header("Client-ID", CLIENT_ID)
+                        .send()?;
     
+    
+        let status = res.status().is_success();
+   
+    
+        //NOTE: .body() consumes the owernship of the response
+        let body = res.text()?;
+        if status != true {
+        	return Err(Box::new(DBError::new(&body)));
+        }
+    
+      	/* Structs for Helix specific JSON desrialization. */ 
+      	/* Prefer fixed size stuff cuz Rust                */
+    	#[derive(Deserialize)]
+    	struct Twitch_User {
+    	    id: String,
+    	    login: String,
+    	    display_name: String
+    	}
+    
+    	#[derive(Deserialize)]
+    	struct Helix_Response {
+    		data: Vec<Twitch_User>,
+    	}
+    
+      	let mut json : Helix_Response = serde_json::from_str(&body).unwrap();
+    
+        return Ok(json.data);
+       
+    }
+
     pub fn get_helix_top_clips(&self, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> DonBotResult<Vec<Twitch_Clip>> {
         println!("Start time: {}", start_time.to_rfc3339());
         println!("End time: {}", end_time.to_rfc3339());
