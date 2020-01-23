@@ -93,7 +93,7 @@ pub fn config_oauth(cfg : &Ini) -> Result<Token, String>{
     println!("===DON'T FORGET TO REMOVE THE EXTRA COMMA SOME TERMINALS COPY AT THE END OF THE URL===");
     let secret = gen_application_secret(cfg);
 
-    let oauthtoken = DiskTokenStorage::new(&".oauth-token".to_string()).unwrap();
+    let oauthtoken = DiskTokenStorage::new(&TOKEN_FILE.to_string()).unwrap();
 
     let mut auth = Authenticator::new(&secret, DefaultAuthenticatorDelegate, 
                                   hyper::Client::with_connector(hyper::net::HttpsConnector::new(hyper_rustls::TlsClient::new())),
