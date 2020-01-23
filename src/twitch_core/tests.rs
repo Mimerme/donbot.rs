@@ -2,6 +2,22 @@ use chrono::{Date, Utc, NaiveDate, DateTime};
 use ini::Ini;
 
 #[test]
+fn test_get_user_id(){
+    use super::*;
+
+    let cfg = Ini::load_from_file("config.ini").unwrap();
+    let twitch_client = TwitchClient::new(&cfg);
+    let res = twitch_client.get_user_id("mimerme".to_string());
+   
+    let e = "57869370".to_string();
+    match res {
+        Result::Ok(e) => {assert!(true)},
+        Result::Ok(_) => {assert!(false)},
+        Result::Err(_) =>  assert!(false)
+    }
+}
+
+#[test]
 fn test_get_helix_clips(){
     use super::*;
 

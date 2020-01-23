@@ -228,7 +228,6 @@ impl TwitchClient<'_>{
         let id = &json.data[0].id;
 
         return Ok(id.to_string());
-       
     }
 
     pub fn get_helix_top_clips(&self, game_id : String, start_time : DateTime<Utc>, end_time : DateTime<Utc>) -> DonBotResult<Vec<Twitch_Clip>> {
