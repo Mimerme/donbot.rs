@@ -45,6 +45,8 @@ rodio = "0.10.0"
 # Keyboard bindings
 inputbot = "0.4.0"
 
+# Scheduler
+clokwerk = "0.3.0"
 [[bin]]
 name = "config_oauth"
 path = "drivers/config_oauth.rs"
@@ -72,3 +74,9 @@ path = "drivers/key_clip.rs"
 [[bin]]
 name = "upload_output"
 path = "drivers/upload_output.rs"
+
+[[bin]]
+name = "scheduler"
+path = "drivers/scheduler.rs"
+
+

@@ -1,3 +1,5 @@
 fn main(){
-    println!("Running chat clip);
+    println!("Running chat clip");
+
+    chat
 }
