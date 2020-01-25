@@ -1,6 +1,6 @@
 use inputbot::{KeybdKey::*, MouseButton::*, *};
 use std::{thread::sleep, time::Duration};
-use don_bot::twitch_core::TwitchClient;
+use don_bot::twitch::TwitchClient;
 use std::env;
 use ini::Ini;
 

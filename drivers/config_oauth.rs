@@ -1,6 +1,6 @@
 use ini::Ini;
-use don_bot::youtube_core;
-use don_bot::twitch_core::TwitchClient;
+use don_bot::youtube;
+use don_bot::twitch::TwitchClient;
 use std::env;
 
 pub fn main() {
@@ -10,7 +10,7 @@ pub fn main() {
     match args[1].as_str() {
        "youtube" => {
             println!("Generating YouTube OAuth Token");
-            let res = youtube_core::config_oauth(&cfg);
+            let res = youtube::config_oauth(&cfg);
             println!("Response: {:?}", res.unwrap());
        },
        "twitch" => {
