@@ -1,10 +1,8 @@
-mod don_bot;
-
 use std::fs;
 use std::path::Path;
 use ini::Ini;
 use don_bot::gstreamer::{stitch_videos};
-use don_bot::youtube_core::{upload_video};
+use don_bot::youtube::{upload_video};
 use std::time::{SystemTime, UNIX_EPOCH};
 use chrono::{Date, Utc, NaiveDate, DateTime, Datelike};
 

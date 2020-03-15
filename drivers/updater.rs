@@ -1,8 +1,6 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 #[macro_use] extern crate rocket;
 #[macro_use] extern crate rocket_contrib;
-
-mod don_bot;
 use ini::Ini;
 use serde::{Deserialize};
 use rocket_contrib::json::{Json, JsonValue};
@@ -11,6 +9,8 @@ use chrono::prelude::*;
 use std::process::{Child, Command};
 // For making it all thread safe
 use std::sync::Mutex;
+use std::thread;
+use std::time::Duration;
 
 static mut POST_BUILD: Option<Child> = None;
 //Automatically updates and schedules the auto_stitcher binary
@@ -75,14 +75,24 @@ fn on_push(payload_data: Json<PushPayload>) -> String{
 
 #[test]
 fn test_rebuild(){
+    //Simulate killing the running post-build script if it is still running
     let cfg = Ini::load_from_file("config.ini").unwrap();
-    let updater_section = cfg.section(Some("updater")).unwrap();
-    let repo_path = updater_section.get("REPO_PATH").unwrap();;
-    let remote = updater_section.get("REMOTE").unwrap();;
-    let branch = updater_section.get("BRANCH").unwrap();;
-    let post_build = updater_section.get("POST_BUILD").unwrap();
+    let updater_section = cfg.section(Some("updater")).unwrap().clone();
+    let repo_path = updater_section.get("REPO_PATH").unwrap().clone();
+    let remote = updater_section.get("REMOTE").unwrap().clone();
+    let branch = updater_section.get("BRANCH").unwrap().clone();
+    let post_build = updater_section.get("POST_BUILD").unwrap().clone();
 
-    rebuild_auto_stitcher(repo_path, remote, branch, post_build);
+    let repo_path_1 = updater_section.get("REPO_PATH").unwrap().clone();
+    let remote_1 = updater_section.get("REMOTE").unwrap().clone();
+    let branch_1 = updater_section.get("BRANCH").unwrap().clone();
+    let post_build_1 = updater_section.get("POST_BUILD").unwrap().clone();
+
+
+    thread::spawn(move || {rebuild_auto_stitcher(&repo_path, &remote, &branch, &post_build);});
+    thread::sleep(Duration::from_millis(5000));
+
+    rebuild_auto_stitcher(&repo_path_1, &remote_1, &branch_1, &post_build_1);
 }
 
 //TODO: Really need to figure out how to do proper error handling here. Layz tn, but def l8er
@@ -98,7 +108,14 @@ fn find_last_commit(repo: &Repository) -> Result<Commit, String> {
 
 fn rebuild_auto_stitcher(path : &str, remote : &str, branch : &str, post_build : &str) {
     println!("!!! Pulling latest updates @ {}", Local::now().to_rfc3339());
-   
+  
+    unsafe {
+        match POST_BUILD.as_mut() {
+            Some(child) => {println!("Killing process");child.kill()},
+            None => Ok(())
+        };
+    }
+
     //Initializing the repository and fetching the latest commits
     let repo = Repository::init(path).unwrap();
     let mut remote = repo.find_remote(remote).unwrap();

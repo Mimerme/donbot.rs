@@ -1,5 +1,3 @@
-mod don_bot;
-
 //Currently working on:
 //Getting the auto stitcher up and running
 //  - idea is to just run a single binary and it'll download, combine, and upload the video
@@ -7,14 +5,15 @@ mod don_bot;
 //  token
 //  - take a relaxing day and go through all of the Clippy warnings
 
-use std::fs;
+
 use std::path::Path;
-use ini::Ini;
-use don_bot::twitch_core::TwitchClient;
+use std::{fs, result};
+use don_bot::twitch::TwitchClient;
 use don_bot::gstreamer::{stitch_videos};
-use don_bot::youtube_core::{upload_video};
+use don_bot::youtube::{upload_video};
 use std::time::{SystemTime, UNIX_EPOCH};
 use chrono::{Date, Utc, NaiveDate, DateTime, Datelike, Duration};
+use ini::Ini;
 
 pub fn main() {
     println!("Loading from Ini file");
@@ -54,7 +53,7 @@ pub fn main() {
         //Genearte a valid filename
     	let mut filename = format!("{}.mp4", clip.id);
         filter_filename(&mut filename);
-       
+      
         //Some print statements to make sure the program is running
         println!("Downloading {} to {}/{}", clip.title, filename, in_ms.to_string());
         println!("Source: {}", clip.mp4_url);
@@ -79,11 +78,6 @@ fn filter_filename(filename_in : &mut String){
 		const FILENAME_WHITELIST : &str = 
 			"-_.() abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 		filename_in.retain(|x| {FILENAME_WHITELIST.contains(x)});
-}
-
-#[test]
-pub fn clean_auto_stitch(){
-
 }
 
 #[test]

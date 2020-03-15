@@ -1,6 +1,4 @@
-mod don_bot;
-
-use don_bot::twitch_chat::{TwitchChat, ChatMsg};
+use don_bot::twitch::{TwitchChat, ChatMsg};
 use notify_rust::Notification;
 use std::fs::File;
 use std::io::BufReader;

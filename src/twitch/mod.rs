@@ -17,5 +17,9 @@ pub use twitch::Twitch_Clip;
 
 pub use twitch::TwitchClient;
 
+pub mod twitch_chat;
+
+pub use twitch_chat::TwitchChat;
+pub use twitch_chat::ChatMsg;
 #[cfg(test)]
 mod tests;

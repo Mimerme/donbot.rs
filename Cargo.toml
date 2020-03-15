@@ -1,5 +1,5 @@
 [package]
-name = "DonBot"
+name = "don_bot"
 version = "0.1.0-indev"
 authors = ["Andros Yang <androssdragonq.9@gmail.com>"]
 edition = "2018"
@@ -8,12 +8,13 @@ edition = "2018"
 		
 [dependencies]
 # General
-reqwest = { version = "0.10.0-alpha.2", features = ["blocking"]}
+reqwest = { version = "0.10.0-alpha.2", features = ["blocking", "json"]}
+tokio = { version = "0.2.9", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-yup-oauth2 = "^1.0"
-hyper = "^0.10"
-hyper-rustls = "^0.6"
+yup-oauth2 = "1.0"
+hyper = "0.10"
+hyper-rustls = "0.6"
 rust-ini = "0.13.0"
 chrono = "0.4.10"
 futures = "0.3.1"
@@ -38,37 +39,44 @@ google-youtube3 = "*"
 twitchchat = "0.7.2"
 
 # Chat Notification
-notify-rust = "3"
+notify = "4.0.12"
 rodio = "0.10.0"
 
-# Placeholder build target. Specify this binary to test all the modules 
-# If you don't ALL targets will be built (f 2 ur CPU)
-# Also faster than check cuz check goes through all the dependencies
-[[bin]]
-name = "test"
-path = "src/test.rs"
+# Keyboard bindings
+inputbot = "0.4.0"
 
+# Scheduler
+clokwerk = "0.3.0"
 [[bin]]
 name = "config_oauth"
-path = "src/config_oauth.rs"
+path = "drivers/config_oauth.rs"
 
 [[bin]]
 name = "auto_stitch"
-path = "src/auto_stitch.rs"
+path = "drivers/auto_stitch.rs"
 
 [[bin]]
 name = "updater"
-path = "src/updater.rs"
+path = "drivers/updater.rs"
 
 [[bin]]
 name = "chat_note"
-path = "src/chat_note.rs"
+path = "drivers/chat_note.rs"
 
 [[bin]]
 name = "gen_enc"
-path = "src/gen_encoding.rs"
+path = "drivers/gen_encoding.rs"
 
-# Mainly a test binary. Remove a eventually
+[[bin]]
+name = "key_clip"
+path = "drivers/key_clip.rs"
+
 [[bin]]
 name = "upload_output"
-path = "src/upload_output.rs"
+path = "drivers/upload_output.rs"
+
+[[bin]]
+name = "scheduler"
+path = "drivers/scheduler.rs"
+
+

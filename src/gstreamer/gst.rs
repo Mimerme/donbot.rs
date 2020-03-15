@@ -1,3 +1,9 @@
+#[path="../utils.rs"]
+mod utils;
+
+#[path="../error.rs"]
+mod error;
+
 extern crate gstreamer as gst;
 use gstreamer::prelude::*;
 
@@ -12,7 +18,7 @@ use gst_pbutils::prelude::*;
 use ini::Ini;
 use std::path::Path;
 
-use crate::don_bot::error::{DonBotResult, DBError};
+use error::{DonBotResult, DBError};
 //use crate::don_bot::utils::don_bot_err;
 
 // Returns a path to the output file
