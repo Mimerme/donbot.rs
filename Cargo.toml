@@ -39,7 +39,7 @@ google-youtube3 = "*"
 twitchchat = "0.7.2"
 
 # Chat Notification
-notify-rust = "3"
+notify = "4.0.12"
 rodio = "0.10.0"
 
 # Keyboard bindings
